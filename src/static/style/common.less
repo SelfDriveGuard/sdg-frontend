@@ -1,0 +1,149 @@
+html {
+  background: #2B3041;
+  color: #fff;
+}
+
+.header {
+  height: 38px;
+  background-color: #52576B;
+  line-height: 38px;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, .7);
+  margin-bottom: 24px;
+}
+
+.mg-auto {
+  width: 1200px;
+  margin: 0 auto;
+}
+
+.footer {
+  min-height: 38px;
+  overflow-y: auto;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #42475B;
+  border-radius: 10px 10px 0 0;
+  &-top {
+    cursor: all-scroll;
+    height: 38px;
+    background: #52576B;
+    border-radius: 10px 10px 0 0;
+
+    &-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    i {
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .iconarrow {
+      color: rgba(255, 255, 255, .7);
+      display: inline-block;
+    }
+
+    .play-btn {
+      height: 28px;
+      background: #2B3041;
+      border-radius: 6px;
+      border: 1px solid #42475B;
+      font-size: 14px;
+      color: rgba(255, 255, 255, .7);
+      margin-right: 20px;
+
+      .iconvideo {
+        margin-right: 6px;
+      }
+    }
+  }
+
+  &-tabs {
+    display: flex;
+    line-height: 38px;
+  }
+
+  &-tab {
+    padding: 0 10px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, .7);
+    cursor: pointer;
+
+    &.active {
+      background-color: #42475B;
+      color: #fff;
+    }
+  }
+
+  &-main {
+    padding: 20px 0;
+    line-height: 24px;
+    overflow-y: auto;
+    font-size: 14px;
+  }
+}
+
+.ant-select-selector {
+  height: 38px !important;
+}
+
+.ant-select-selection-placeholder, .ant-select-selection-item {
+  line-height: 38px !important;
+}
+
+
+.ant-modal-content {
+  background-color: #2B3041;
+
+}
+
+.ant-modal-header {
+  padding: 16px 20px;
+  border-bottom: 0;
+  background-color: #2B3041;
+
+  &:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 4px;
+    height: 24px;
+    background: #4F5DEB;
+  }
+
+  .ant-modal-title {
+    color: #FFFFFF;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.ant-modal-footer {
+  border-top: 0;
+  height: 84px;
+  line-height: 84px;
+  text-align: center;
+  padding: 0;
+
+  .ant-btn {
+    width: 108px;
+    height: 38px;
+    border: 1px solid #4F5DEB;
+    color: #4F5DEB;
+
+    &.ant-btn-primary {
+      color: #fff;
+      background-color: #4F5DEB;
+    }
+  }
+}
+
+.ant-input {
+  height: 38px !important;
+}
+

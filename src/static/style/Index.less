@@ -1,0 +1,120 @@
+.main {
+  height: 620px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  &-left {
+    background: #0C0B22;
+    border: 1px solid #373D50;
+    width: 900px;
+    margin-right: 14px;
+    .ant-spin-nested-loading {
+      height: 100%;
+      .ant-spin-container {
+        height: 100%;
+      }
+    }
+  }
+  &-code {
+    height: calc(100% - 76px);
+  }
+  &-top {
+    padding: 20px 30px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    .select-left {
+      width: 112px;
+      .ant-select-selector {
+        border: 0;
+      }
+    }
+    .select-right {
+      border: 1px solid #4F5DEB;
+      width: 100px;
+      margin-right: 20px;
+      .ant-select-selector {
+        border: 0;
+      }
+      .ant-select-selection-item, .ant-select-selection-placeholder {
+        color: #4F5DEB;
+      }
+    }
+    .submit {
+      width: 90px;
+      height: 38px;
+      background: #4F5DEB;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    &-right {
+      display: flex;
+    }
+  }
+  &-right {
+    width: 290px;
+    &-item {
+      background-color: #0C0B22;
+      margin-bottom: 10px;
+      height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 290px;
+      .item-inner {
+        overflow: hidden;
+        width: 270px;
+        height: 180px;
+        border: 1px solid #293041;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .iconpic {
+          font-size: 58px;
+          color: #2B3041;
+        }
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
+}
+
+.ego-modal {
+  .ego-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .ego-label {
+    width: 90px;
+  }
+  .ant-input {
+    width: 64px;
+    margin-right: 20px;
+    margin-left: 8px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px; /*对垂直流动条有效*/
+  height: 6px; /*对水平流动条有效*/
+}
+
+/*定义滚动条的轨道颜色、内阴影及圆角*/
+::-webkit-scrollbar-track{
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+  background-color: transparent;
+  border-radius: 5px;
+}
+
+
+/*定义滑块颜色、内阴影及圆角*/
+::-webkit-scrollbar-thumb{
+  border-radius: 5px;
+  background-color: #42475B;
+}
