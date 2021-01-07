@@ -47,6 +47,7 @@ const Footer = () => {
     };
 
     const handleMousedown = (e) => {
+        e.preventDefault();
         dragAble = true;
         oldY = e.pageY;
         setHeight(document.getElementById('footer').clientHeight);
@@ -81,9 +82,10 @@ const Footer = () => {
                 </div>
             </div>
             <div className="footer-main">
-                <div className="mg-auto"
-                     dangerouslySetInnerHTML={{__html: cont}}>
-                </div>
+                {operateStatus ? <div className="mg-auto"
+                                      dangerouslySetInnerHTML={{__html: cont}}>
+                </div> : ''}
+
             </div>
         </div>
     )
