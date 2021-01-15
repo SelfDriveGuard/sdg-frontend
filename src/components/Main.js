@@ -6,6 +6,7 @@ import {Select, Spin} from 'antd';
 import ObstacleModal from "./ObstacleModal";
 import EgoModal from "./EgoModal";
 import MapModal from "./MapModal";
+import Menu from "./Menu";
 
 import pic2 from '../static/img/pic2.png';
 import {GeoJsonLayer} from "@deck.gl/layers";
@@ -19,95 +20,51 @@ import {
 import {XVIZ_STYLE, CAR} from "../constants";
 
 import IndexContext from "../context";
+import {myServerApi} from "../api";
 
-const __HOST_IP__ = '172.16.203.135';
+// const WS_IP = '172.16.203.135';
+const WS_IP = '52.83.15.145';
 
 const {Option} = Select;
-
-const defaultCode = '\n' +
-    'map = "Town03";\n' +
-    '\n' +
-    'ego_init_position = (4.5, 214); //default coordinate frame is ENU\n' +
-    'ego_target_position = (4.5, -200); //default coordinate frame is ENU\n' +
-    'ego_init_state = (ego_init_position);\n' +
-    'ego_target_state = (ego_target_position);\n' +
-    '\n' +
-    'car_model = "Lincoln MKZ 2017";\n' +
-    'car_color = (255, 0, 0);\n' +
-    'vehicle_type = (car_model, car_color);\n' +
-    'ego_vehicle = AV(ego_init_state, ego_target_state, vehicle_type);\n' +
-    '\n' +
-    '//scenario1 = CreateScenario{load(map);\n' +
-    '//         ego_vehicle;\n' +
-    '//         {}; // no other vehicles;\n' +
-    '//         {}; // no pedestrians;\n' +
-    '//         {}; // no obstacles;\n' +
-    '//         {}; // default environment\n' +
-    '//         {}; // no traffic constraints\n' +
-    '//};\n' +
-    '\n' +
-    'npc_init_state = (1->0.0, ,1.5) ;//the initial position is the start point of lane 1, the orientation of the vehicle is along with the lane direction, and the initial speed is 1.5m/s \n' +
-    'motion = U(npc_init_state);\n' +
-    'npc1 = Vehicle(npc_init_state, motion);\n' +
-    'npc_init_state2 = (2->0.0, ,1.0);\n' +
-    'npc_state = ((2->0.0, , 1.0), (2->50.0, ,1.0));\n' +
-    'npc2 =Vehicle(npc_init_state2, Waypoint(npc_state), (4->100, ,0.0), vehicle_type);\n' +
-    'heading = 45 deg related to EGO;\n' +
-    'npc_init_state3 = ((8, 50), heading, 0.0);\n' +
-    'npc3 = Vehicle(npc_init_state3);\n' +
-    '\n' +
-    '//npc = {npc1, npc2, npc3};\n' +
-    'npc = {npc3};\n' +
-    '\n' +
-    'pedestrian_type = (1.65, black);\n' +
-    'pedestrian = Pedestrian(((19,13), ,0.5), , ((0,13), ,0), pedestrian_type);\n' +
-    'pedestrians={pedestrian};\n' +
-    'time = 10:00;\n' +
-    'weather = {rain: 0.1};\n' +
-    'env = Environment(time, weather);\n' +
-    '\n' +
-    'speed_range = (0,20);\n' +
-    'speed_limit = SpeedLimit(5, speed_range);\n' +
-    'i1 = Intersection(1, 1, 0, 1);\n' +
-    'traffic = {i1,speed_limit};\n' +
-    '\n' +
-    'scenario = CreateScenario{load(map);\n' +
-    '        ego_vehicle;\n' +
-    '        npc;\n' +
-    '        pedestrians;\n' +
-    '        {};\n' +
-    '        env;\n' +
-    '        traffic;\n' +
-    '};\n';
 
 let carlaLog, ws;
 let mapLayer, mapLayerBig;
 const Main = () => {
-    const {operateStatus, dispatch} = useContext(IndexContext);
+    const {operateStatus, loginStatus, code, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
     const [obstacleVisible, setObstacleVisible] = useState(false);
     const [egoVisible, setEgoVisible] = useState(false);
     const [mapVisible, setMapVisible] = useState(false);
 
-    const [code, setCode] = useState(defaultCode);
     const [lang, setLang] = useState('scenest');
     const [loading, setLoading] = useState(false);
+    const [myServer, setMyServer] = useState([]);
+
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
     const [bigLayers, setBigLayers] = useState([]);
 
     useEffect(() => {
-        if(customLayers.length > 0) {
+        if (customLayers.length > 0) {
             dispatch({type: 'SET_STATUS', status: true});
         }
-    }, [customLayers]);
+    }, [customLayers, dispatch]);
+
+    useEffect(() => {
+        if(loginStatus) {
+            (async () => {
+                await getMyServer();
+            })()
+        }
+    }, [loginStatus]);
     const handleSocket = (info) => {
         carlaLog = new XVIZLiveLoader({
             logGuid: "mock",
             bufferLength: 10,
             serverConfig: {
                 defaultLogLength: 50,
-                serverUrl: "ws://" + info.server_ip + ":" + info.server_port,
+                serverUrl: `ws://${WS_IP}:8081`,
+                //  info.server_ip + ":" + info.server_port,
             },
             worker: true,
             maxConcurrency: 10
@@ -143,9 +100,8 @@ const Main = () => {
                 setBigLayers([mapLayerBig]);
             }
             carlaLog.socket.onclose = () => {
-                // setMetadataReceived(false);
+
             };
-            // setMetadataReceived(true);
         })
             .on("error", console.error)
             .connect();
@@ -160,11 +116,19 @@ const Main = () => {
     };
     const langChange = (val) => {
         setLang(val);
-        if (val === 'scenest') {
-            setCode(defaultCode);
-        } else {
-            setCode('');
-        }
+        // if (val === 'scenest') {
+        //     setCode(defaultCode);
+        // } else {
+        //     setCode('');
+        // }
+    };
+
+    const getMyServer = async () => {
+        const {data} = await myServerApi();
+        data.forEach((item, index) => {
+            item.key = index;
+        });
+        setMyServer(data);
     };
 
     const submit = () => {
@@ -178,7 +142,7 @@ const Main = () => {
             const currentCode = codeMirror.current.editor.getValue();
             setLoading(true);
             if (!ws) {
-                ws = new WebSocket(`ws://${__HOST_IP__}:8888`);
+                ws = new WebSocket(`ws://${WS_IP}:8888`);
             } else {
                 ws.send(JSON.stringify({
                     cmd: "run",
@@ -199,40 +163,58 @@ const Main = () => {
                     setLoading(false);
                     handleSocket(data);
                 } else if (data.state === 'finish') {
-
                 }
+            };
+            ws.onclose = () => {
+                ws = new WebSocket(`ws://${WS_IP}:8888`);
             };
         }
     };
     return (
-        <div className="main mg-auto">
+        <div className="main">
+            <Menu/>
             <div className="main-left">
                 <Spin spinning={loading} size="large">
                     <div className="main-top">
-                        <Select placeholder=""
-                                onChange={langChange}
-                                className="select-left" defaultValue={'scenest'}>
-                            <Option value={'scenest'}># scenest</Option>
-                            <Option value={'scenic'}># scenic</Option>
-                            <Option value={'scenario'}># scenario</Option>
-                        </Select>
-                        <div className="main-top-right">
-                            <Select placeholder="创建"
-                                    onChange={objectChange}
-                                    className="select-right" defaultValue={undefined}>
-                                <Option value={1}>地图</Option>
-                                <Option value={2}>控制车辆</Option>
-                                <Option value={3}>NPC车辆</Option>
-                                <Option value={4}>行人</Option>
-                                <Option value={5}>障碍物</Option>
+                        <div className="main-top-left">
+                            <div className="main-top-label">语言：</div>
+                            <Select placeholder="请选择语言"
+                                    onChange={langChange}
+                                    className="select-left" defaultValue={'scenest'}>
+                                <Option value={'scenest'}># scenest</Option>
+                                <Option value={'scenic'}># scenic</Option>
+                                <Option value={'scenario'}># scenario</Option>
                             </Select>
+                            <div className="main-top-label">服务器：</div>
+                            <Select placeholder="请选择服务器"
+                                    className="select-left select-server" defaultValue={undefined}>
+                                {myServer.map((item) => {
+                                    return <Option value={item.ip} key={item.key}>
+                                        {item.ip}
+                                    </Option>
+                                })}
+
+                            </Select>
+                        </div>
+
+                        <div className="main-top-right">
                             <button className="submit" onClick={submit}>
                                 {
                                     operateStatus ? '停止' : '运行'
-                                }</button>
+                                }
+                            </button>
                         </div>
                     </div>
                     <div className="main-code">
+                        <Select placeholder="快速添加"
+                                onChange={objectChange}
+                                className="select-right" defaultValue={undefined}>
+                            <Option value={1}>地图</Option>
+                            <Option value={2}>控制车辆</Option>
+                            <Option value={3}>NPC车辆</Option>
+                            <Option value={4}>行人</Option>
+                            <Option value={5}>障碍物</Option>
+                        </Select>
                         <CodeMirror
                             value={code}
                             ref={codeMirror}
@@ -296,7 +278,6 @@ const Main = () => {
                 setMapVisible(false)
             }}
             />
-
         </div>
     )
 };

@@ -67,7 +67,7 @@ const Footer = () => {
         <div className="footer" style={{height: `${height}px`}} id="footer">
             <div className="footer-top"
                  onMouseDown={handleMousedown}>
-                <div className="mg-auto footer-top-inner">
+                <div className="footer-top-inner">
                     <div className="footer-tabs">
                         <div className={`footer-tab ${tab === 0 ? 'active': ''}`}
                              onClick={() => {tabChange(0)}}>Scenario信息</div>

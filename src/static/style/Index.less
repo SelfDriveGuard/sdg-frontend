@@ -1,12 +1,33 @@
 .main {
   height: 620px;
   display: flex;
-  justify-content: space-between;
   margin-bottom: 30px;
+  &-menu {
+    width: 220px;
+    position: absolute;
+    top: 38px;
+    height: calc(100vh - 38px);
+    background: #42475B;
+    .menu-top {
+      color: #C1C1C8;
+      height: 66px;
+      line-height: 66px;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #293041;
+      span {
+        font-size: 14px;
+      }
+      i {
+        cursor: pointer;
+      }
+    }
+  }
   &-left {
-    background: #0C0B22;
-    border: 1px solid #373D50;
-    width: 900px;
+    margin-left: 240px;
+    width: calc(100% - 560px);
     margin-right: 14px;
     .ant-spin-nested-loading {
       height: 100%;
@@ -16,30 +37,38 @@
     }
   }
   &-code {
-    height: calc(100% - 76px);
-  }
-  &-top {
-    padding: 20px 30px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    .select-left {
-      width: 112px;
-      .ant-select-selector {
-        border: 0;
-      }
-    }
+    height: calc(100% - 49px);
+    position: relative;
     .select-right {
-      border: 1px solid #4F5DEB;
+      position: absolute;
+      background-color: #42475B;
       width: 100px;
       margin-right: 20px;
+      z-index: 9;
+      top: 20px;
+      right: 2px;
       .ant-select-selector {
         border: 0;
       }
       .ant-select-selection-item, .ant-select-selection-placeholder {
-        color: #4F5DEB;
+        color: #fff;
       }
+    }
+  }
+  &-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    .select-left {
+      width: 100px;
+      margin-right: 30px;
+      .ant-select-selector {
+        border: 1px solid rgba(255, 255, 255, .5);
+      }
+    }
+    .select-server {
+      width: 140px;
     }
     .submit {
       width: 90px;
@@ -48,6 +77,11 @@
       color: #fff;
       font-size: 14px;
       cursor: pointer;
+    }
+    &-label {
+      display: inline-block;
+      font-size: 14px;
+      color: rgba(255, 255, 255, .5);
     }
     &-right {
       display: flex;
@@ -128,7 +162,6 @@
   background-color: transparent;
   border-radius: 5px;
 }
-
 
 /*定义滑块颜色、内阴影及圆角*/
 ::-webkit-scrollbar-thumb{

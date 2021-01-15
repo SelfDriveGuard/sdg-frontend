@@ -10,7 +10,36 @@ html {
   font-size: 14px;
   font-weight: 400;
   color: rgba(255, 255, 255, .7);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+
+  &-inner {
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  &-btn {
+    cursor: pointer;
+    padding-left: 20px;
+  }
+
+  &-btn-group {
+    display: flex;
+    align-items: center;
+  }
+
+  &-purchase {
+    height: 38px;
+    width: 90px;
+    color: #fff;
+    background: #4F5DEB;
+  }
+
+  .iconuser {
+    font-size: 24px;
+    margin-left: 20px;
+  }
 }
 
 .mg-auto {
@@ -22,10 +51,13 @@ html {
   min-height: 38px;
   overflow-y: auto;
   position: absolute;
+  z-index: 10;
   bottom: 0;
-  width: 100%;
+  width: calc(100% - 221px);
+  margin-left: 221px;
   background-color: #42475B;
   border-radius: 10px 10px 0 0;
+
   &-top {
     cursor: all-scroll;
     height: 38px;
@@ -66,6 +98,7 @@ html {
   &-tabs {
     display: flex;
     line-height: 38px;
+    margin-left: 20px;
   }
 
   &-tab {
@@ -85,6 +118,115 @@ html {
     line-height: 24px;
     overflow-y: auto;
     font-size: 14px;
+  }
+}
+
+.login {
+  position: relative;
+
+  .userName {
+    margin-bottom: 20px;
+  }
+
+  .password {
+    margin-bottom: 42px;
+  }
+
+  &-tip {
+    position: absolute;
+    color: #C1C1C8;
+    cursor: pointer;
+    bottom: 82px;
+  }
+
+  &-btn {
+    cursor: pointer;
+    width: 100%;
+    height: 38px;
+    line-height: 38px;
+    background-color: #4F5DEB;
+  }
+
+  .purchase {
+    padding: 8px 0 22px;
+    display: flex;
+    justify-content: space-between;
+
+    &-top {
+      width: 100px;
+      height: 30px;
+      line-height: 30px;
+      text-align: center;
+      background: #51576E;
+      border-radius: 6px 6px 0 0;
+    }
+
+    &-cont {
+      margin-bottom: 5px;
+    }
+
+    &-inner {
+      padding: 10px 0;
+      line-height: 24px;
+      text-align: center;
+      background: #42475B;
+      border-radius: 0 0 6px 6px;
+    }
+
+    &-btn {
+      width: 100px;
+      height: 30px;
+      background: #4F5DEB;
+      border-radius: 6px;
+      padding: 0 10px;
+      display: flex;
+      cursor: pointer;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .server-table {
+    margin-bottom: 30px;
+  }
+
+  .ant-modal-header {
+    text-align: center;
+    height: 64px;
+    border-bottom: 1px solid #41475E;
+
+    &:before {
+      width: 0;
+    }
+
+    .ant-modal-title {
+      line-height: 30px;
+    }
+  }
+
+  .ant-modal-body {
+    padding: 30px;
+  }
+
+  .add-select {
+    margin-bottom: 20px;
+  }
+  .add-select, .add-input {
+    width: 100%;
+  }
+
+}
+
+.user-overlay {
+  width: 110px;
+  background: #52576B;
+
+  p {
+    cursor: pointer;
+    text-align: center;
+    color: #C1C1C8;
+    height: 30px;
+    line-height: 30px;
   }
 }
 
@@ -147,3 +289,110 @@ html {
   height: 38px !important;
 }
 
+.ant-table {
+  background-color: transparent;
+
+  .ant-table-thead > tr > th {
+    white-space: nowrap;
+  }
+
+  .ant-table-row td {
+    white-space: nowrap;
+  }
+
+  .ant-table-thead {
+    line-height: 38px;
+    background: #51576E;
+    height: 38px;
+
+    .ant-table-cell {
+      background-color: #51576E;
+      padding: 0 20px;
+      color: #fff;
+      border: 0;
+    }
+  }
+
+  .ant-table-tbody {
+    line-height: 38px;
+    height: 38px;
+
+    tr:hover > td {
+      background-color: #42475B !important;
+    }
+
+    .ant-table-cell {
+      padding: 0 20px;
+      background-color: #42475B;
+      color: #C1C1C8;
+    }
+  }
+}
+
+.ant-tree-treenode-selected {
+  background: #2B3041;
+}
+
+.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+  background-color: transparent;
+}
+
+.ant-tree .ant-tree-node-content-wrapper:hover {
+  background-color: transparent;
+}
+
+.ant-tree .ant-tree-treenode {
+  padding: 6px 20px 10px 14px;
+  color: #C1C1C8;
+  width: 100%;
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode .ant-tree-node-content-wrapper.ant-tree-node-selected {
+  color: #C1C1C8;
+}
+
+.ant-tree-switcher .ant-tree-switcher-icon, .ant-tree-switcher .ant-select-tree-switcher-icon {
+  font-size: 16px;
+  vertical-align: -3px;
+}
+
+.ant-tree.ant-tree-directory .ant-tree-treenode::before {
+  bottom: 0;
+}
+
+.child-tree {
+  margin-left: -20px;
+  width: 154px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .icondocument {
+    margin-right: 4px;
+  }
+}
+
+.father-tree {
+  margin-left: 4px;
+  width: 154px;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  .iconxiangmu {
+    margin-right: 4px;
+  }
+}
+
+.tree-dropdown {
+  width: 80px;
+  text-align: center;
+  background: #0C0B22;
+  cursor: pointer;
+  color: #C1C1C8;
+  line-height: 38px;
+  p {
+    height: 38px;
+    &:hover {
+      background: #2A2F40;
+    }
+  }
+}
