@@ -9,7 +9,7 @@ import MapModal from "./MapModal";
 import Menu from "./Menu";
 
 import pic2 from '../static/img/pic2.png';
-import {GeoJsonLayer} from "@deck.gl/layers";
+import {GeoJsonLayer, TextLayer} from "@deck.gl/layers";
 import {COORDINATE_SYSTEM} from "@deck.gl/core";
 import {
     LogViewer,
@@ -23,12 +23,13 @@ import IndexContext from "../context";
 import {myServerApi} from "../api";
 
 // const WS_IP = '172.16.203.135';
-const WS_IP = '52.83.15.145';
+// const WS_IP = '52.83.15.145';
+const WS_IP = '192.168.31.84';
 
 const {Option} = Select;
 
 let carlaLog, ws;
-let mapLayer, mapLayerBig;
+let mapLayer, mapLayerBig, textLayer;
 const Main = () => {
     const {operateStatus, loginStatus, code, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
@@ -39,10 +40,12 @@ const Main = () => {
     const [lang, setLang] = useState('scenest');
     const [loading, setLoading] = useState(false);
     const [myServer, setMyServer] = useState([]);
+    const [submitStatus, setSubmitStatus] = useState(false);
 
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
     const [bigLayers, setBigLayers] = useState([]);
+    const [hoverLog, setHoverLog] = useState({});
 
     useEffect(() => {
         if (customLayers.length > 0) {
@@ -57,13 +60,33 @@ const Main = () => {
             })()
         }
     }, [loginStatus]);
+
+    const _onLayerHover = (info) => {
+        if(info.object){
+            setHoverLog({
+                hoverObject: {
+                    roadId: info.object.properties.name,
+                    laneId: info.object.properties.name,
+                    x: info.x,
+                    y: info.y
+                },
+                showHover: true
+            });
+        }else {
+            setHoverLog({
+                showHover: false
+            });
+        }
+        console.log(info)
+    };
+
     const handleSocket = (info) => {
         carlaLog = new XVIZLiveLoader({
             logGuid: "mock",
             bufferLength: 10,
             serverConfig: {
                 defaultLogLength: 50,
-                serverUrl: `ws://${WS_IP}:8081`,
+                serverUrl: `ws://${WS_IP}:8091`,
                 //  info.server_ip + ":" + info.server_port,
             },
             worker: true,
@@ -95,9 +118,29 @@ const Main = () => {
                 mapLayerBig = new GeoJsonLayer({
                     ...config,
                     id: `carla_map_big`,
+                    pickable: true,
+                    onClick: info => _onLayerHover(info),
+                    onHover: info => _onLayerHover(info)
+                });
+                textLayer = new TextLayer({
+                    id: 'text-layer',
+                    data: metadata.map.features,
+                    billboard: false,
+                    fontFamily: 'sans-serif',
+                    sizeUnits: 'meters',
+                    coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+                    coordinateOrigin: [0, 0, 0], 
+                    pickable: true,
+                    getPosition: d => d.geometry.coordinates[1],
+                    getText: d => d.properties.name,
+                    getColor: [255, 255, 0, 255],
+                    getSize: 0.3,
+                    getAngle: 0,
+                    getTextAnchor: 'middle',
+                    getAlignmentBaseline: 'center',          
                 });
                 setCustomLayers([mapLayer]);
-                setBigLayers([mapLayerBig]);
+                setBigLayers([mapLayerBig, textLayer]);
             }
             carlaLog.socket.onclose = () => {
 
@@ -137,16 +180,18 @@ const Main = () => {
             return;
         }
         if (operateStatus) {
+            setSubmitStatus(false);
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
             log.close();
             dispatch({type: 'SET_STATUS', status: false});
         } else {
+            setSubmitStatus(true);
             const currentCode = codeMirror.current.editor.getValue();
             setLoading(true);
             if (!ws) {
-                ws = new WebSocket(`ws://${WS_IP}:8888`);
+                ws = new WebSocket(`ws://${WS_IP}:8093`);
             } else {
                 ws.send(JSON.stringify({
                     cmd: "run",
@@ -170,10 +215,52 @@ const Main = () => {
                 }
             };
             ws.onclose = () => {
-                ws = new WebSocket(`ws://${WS_IP}:8888`);
+                ws = new WebSocket(`ws://${WS_IP}:8093`);
             };
         }
     };
+
+    const mapChange = (map_name) => {
+        console.log('----------'+map_name)
+        if(!loginStatus) {
+            dispatch({type: 'SET_LOGIN', status: true});
+            return;
+        }
+        
+            setLoading(true);
+            if (!ws) {
+                ws = new WebSocket(`ws://${WS_IP}:8093`);
+            } else {
+                ws.send(JSON.stringify({
+                    cmd: "run",
+                    lang: lang,
+                    code: "",
+                    map_name: map_name
+                }));
+            }
+            ws.onopen = () => {
+                ws.send(JSON.stringify({
+                    cmd: "run",
+                    lang: lang,
+                    code: "",
+                    map_name: map_name
+                }));
+            };
+            ws.onmessage = (evt) => {
+                const data = JSON.parse(evt.data);
+                console.log(data)
+                if (data.state === 'init') {
+                    setLoading(false);
+                    handleSocket(data);
+                } else if (data.state === 'finish') {
+                }
+            };
+            ws.onclose = () => {
+                ws = new WebSocket(`ws://${WS_IP}:8093`);
+            };
+        
+    };
+
     return (
         <div className="main">
             <Menu/>
@@ -199,12 +286,22 @@ const Main = () => {
                                 })}
 
                             </Select>
+                            <div className="main-top-label">地图：</div>
+                            <Select placeholder="请选择地图"
+                                onChange={mapChange}
+                                className="select-right" defaultValue={undefined}>
+                                <Option value={'Town01'}>Town01</Option>
+                                <Option value={'Town02'}>Town02</Option>
+                                <Option value={'Town03'}>Town03</Option>
+                                <Option value={'Town04'}>Town04</Option>
+                                <Option value={'Town05'}>Town05</Option>
+                            </Select>
                         </div>
 
                         <div className="main-top-right">
                             <button className="submit" onClick={submit}>
                                 {
-                                    operateStatus ? '停止' : '运行'
+                                    submitStatus ? '停止' : '运行'
                                 }
                             </button>
                         </div>
@@ -278,6 +375,7 @@ const Main = () => {
             <MapModal
                 layers={bigLayers}
                 log={log}
+                hoverLog={hoverLog}
                 visible={mapVisible} cancel={() => {
                 setMapVisible(false)
             }}
