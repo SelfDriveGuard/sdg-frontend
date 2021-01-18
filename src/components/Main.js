@@ -174,9 +174,17 @@ const Main = () => {
             };
         }
     };
+
+    const getCode = () => {
+        return new Promise((resolve) => {
+            const code = codeMirror.current.editor.getValue();
+            resolve(code);
+        });
+    };
+
     return (
         <div className="main">
-            <Menu/>
+            <Menu getCode={getCode}/>
             <div className="main-left">
                 <Spin spinning={loading} size="large">
                     <div className="main-top">
@@ -197,7 +205,6 @@ const Main = () => {
                                         {item.ip}
                                     </Option>
                                 })}
-
                             </Select>
                         </div>
 
