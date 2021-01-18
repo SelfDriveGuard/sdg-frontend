@@ -6,7 +6,7 @@ import {getTreeApi} from '../api';
 import IndexContext from "../context";
 
 const Menu = () => {
-    const {dispatch} = useContext(IndexContext);
+    const {loginStatus, dispatch} = useContext(IndexContext);
 
     const [addVisible, setAddVisible] = useState(false);
     const [renameVisible, setRenameVisible] = useState(false);
@@ -63,10 +63,12 @@ const Menu = () => {
     };
 
     useEffect(() => {
-        (async () => {
-            await getTreeData();
-        })()
-    }, []);
+        if(loginStatus) {
+            (async () => {
+                await getTreeData();
+            })()
+        }
+    }, [loginStatus]);
 
     const updateSuccess = async () => {
         await getTreeData();
@@ -84,6 +86,10 @@ const Menu = () => {
             <div className="menu-top">
                 <span>项目管理</span>
                 <i className="iconfont iconplus-circle" onClick={() => {
+                    if(!loginStatus) {
+                        dispatch({type: 'SET_LOGIN', status: true});
+                        return;
+                    }
                     setAddVisible(true)
                 }}/>
             </div>

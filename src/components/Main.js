@@ -132,6 +132,10 @@ const Main = () => {
     };
 
     const submit = () => {
+        if(!loginStatus) {
+            dispatch({type: 'SET_LOGIN', status: true});
+            return;
+        }
         if (operateStatus) {
             ws.send(JSON.stringify({
                 cmd: "stop",
