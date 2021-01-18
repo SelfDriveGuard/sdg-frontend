@@ -84,3 +84,22 @@ export function updateProjectApi(data) {
         data,
     });
 }
+
+// 项目管理 删除
+export function deleteProjectApi(data) {
+    return http({
+        url: '/user/deleteProject',
+        method: "POST",
+        data,
+    });
+}
+
+// 项目管理 保存
+export function saveProjectApi(data) {
+    return http({
+        url: '/user/saveProject',
+        method: "POST",
+        data,
+    });
+}
+

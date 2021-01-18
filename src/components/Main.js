@@ -227,43 +227,49 @@ const Main = () => {
             return;
         }
         
-            setLoading(true);
-            if (!ws) {
-                ws = new WebSocket(`ws://${WS_IP}:8093`);
-            } else {
-                ws.send(JSON.stringify({
-                    cmd: "run",
-                    lang: lang,
-                    code: "",
-                    map_name: map_name
-                }));
+        setLoading(true);
+        if (!ws) {
+            ws = new WebSocket(`ws://${WS_IP}:8093`);
+        } else {
+            ws.send(JSON.stringify({
+                cmd: "run",
+                lang: lang,
+                code: "",
+                map_name: map_name
+            }));
+        }
+        ws.onopen = () => {
+            ws.send(JSON.stringify({
+                cmd: "run",
+                lang: lang,
+                code: "",
+                map_name: map_name
+            }));
+        };
+        ws.onmessage = (evt) => {
+            const data = JSON.parse(evt.data);
+            console.log(data)
+            if (data.state === 'init') {
+                setLoading(false);
+                handleSocket(data);
+            } else if (data.state === 'finish') {
             }
-            ws.onopen = () => {
-                ws.send(JSON.stringify({
-                    cmd: "run",
-                    lang: lang,
-                    code: "",
-                    map_name: map_name
-                }));
-            };
-            ws.onmessage = (evt) => {
-                const data = JSON.parse(evt.data);
-                console.log(data)
-                if (data.state === 'init') {
-                    setLoading(false);
-                    handleSocket(data);
-                } else if (data.state === 'finish') {
-                }
-            };
-            ws.onclose = () => {
-                ws = new WebSocket(`ws://${WS_IP}:8093`);
-            };
-        
+        };
+        ws.onclose = () => {
+            ws = new WebSocket(`ws://${WS_IP}:8093`);
+        };
+    }
+    
+    const getCode = () => {
+        return new Promise((resolve) => {
+            const code = codeMirror.current.editor.getValue();
+            resolve(code);
+        });
     };
 
     return (
         <div className="main">
-            <Menu/>
+            <Menu getCode={getCode}/>
             <div className="main-left">
                 <Spin spinning={loading} size="large">
                     <div className="main-top">
@@ -284,7 +290,6 @@ const Main = () => {
                                         {item.ip}
                                     </Option>
                                 })}
-
                             </Select>
                             <div className="main-top-label">地图：</div>
                             <Select placeholder="请选择地图"
