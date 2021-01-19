@@ -4,6 +4,7 @@ import AddProjectModal from './AddProjectModal';
 import RenameModal from "./RenameModal";
 import {getTreeApi, deleteProjectApi, saveProjectApi} from '../api';
 import IndexContext from "../context";
+import {baseUrl} from '../plugins/axios';
 
 let currentNode;
 const Menu = (props) => {
@@ -36,7 +37,7 @@ const Menu = (props) => {
     };
 
     const handleDownload = async () => {
-        window.open(`http://localhost:3333/user/downloadProject?filePath=${currentNode.path}&name=${currentNode.name}`)
+        window.open(`${baseUrl}/user/downloadProject?filePath=${currentNode.path}&name=${currentNode.name}`)
     };
 
     const dropDownFather =
