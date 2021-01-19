@@ -8,7 +8,7 @@ const defaultState = {
 
 const reducer = (state = defaultState, action) => {
     switch (action.type) {
-        case 'SET_STATUS':
+        case 'SET_OPERATE_STATUS':
             return {
                 ...state,
                 operateStatus: action.status,

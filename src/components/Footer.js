@@ -82,8 +82,9 @@ const Footer = () => {
                 </div>
             </div>
             <div className="footer-main">
-                {operateStatus ? <div className="mg-auto"
-                                      dangerouslySetInnerHTML={{__html: cont}}>
+                {operateStatus ? <div
+                    className="footer-inner"
+                    dangerouslySetInnerHTML={{__html: cont}}>
                 </div> : ''}
 
             </div>

@@ -32,21 +32,15 @@ const EgoModal = (props) => {
                         </div>
                         {hoverLog.showHover ? (
                             <div style={{
-                                position: "absolute",
-                                zIndex: 1000,
-                                background: "#333333",
-                                color: "#ffffff",
-                                pointerEvents: "none",
-                                borderRadius: "5px",
-                                padding: "0 5px",
+
                                 left: hoverLog.hoverObject.x,
                                 top: hoverLog.hoverObject.y
-                            }} >
-                                <p>roadId:{hoverLog.hoverObject.roadId}</p>
-                                <p>laneId:{hoverLog.hoverObject.laneId}</p>
+                            }} className="map-hover-modal">
+                                <p><span className="label">roadId:</span> {hoverLog.hoverObject.roadId}</p>
+                                <p><span className="label">laneId:</span> {hoverLog.hoverObject.laneId}</p>
                             </div>
                             ) : (
-                            <div></div>
+                            <></>
                         )}
                     </Modal> : ''}
         </>

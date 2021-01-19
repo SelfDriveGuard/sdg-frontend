@@ -37,10 +37,10 @@ const Main = () => {
     const [egoVisible, setEgoVisible] = useState(false);
     const [mapVisible, setMapVisible] = useState(false);
 
+    const [mapStatus, setMapStatus] = useState(false);
     const [lang, setLang] = useState('scenest');
     const [loading, setLoading] = useState(false);
     const [myServer, setMyServer] = useState([]);
-    const [submitStatus, setSubmitStatus] = useState(false);
 
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
@@ -49,12 +49,11 @@ const Main = () => {
 
     useEffect(() => {
         if (customLayers.length > 0) {
-            dispatch({type: 'SET_STATUS', status: true});
         }
     }, [customLayers, dispatch]);
 
     useEffect(() => {
-        if(loginStatus) {
+        if (loginStatus) {
             (async () => {
                 await getMyServer();
             })()
@@ -62,7 +61,7 @@ const Main = () => {
     }, [loginStatus]);
 
     const _onLayerHover = (info) => {
-        if(info.object){
+        if (info.object) {
             setHoverLog({
                 hoverObject: {
                     roadId: info.object.properties.name,
@@ -72,12 +71,11 @@ const Main = () => {
                 },
                 showHover: true
             });
-        }else {
+        } else {
             setHoverLog({
                 showHover: false
             });
         }
-        console.log(info)
     };
 
     const handleSocket = (info) => {
@@ -129,7 +127,7 @@ const Main = () => {
                     fontFamily: 'sans-serif',
                     sizeUnits: 'meters',
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-                    coordinateOrigin: [0, 0, 0], 
+                    coordinateOrigin: [0, 0, 0],
                     pickable: true,
                     getPosition: d => d.geometry.coordinates[1],
                     getText: d => d.properties.name,
@@ -137,7 +135,7 @@ const Main = () => {
                     getSize: 0.3,
                     getAngle: 0,
                     getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'center',          
+                    getAlignmentBaseline: 'center',
                 });
                 setCustomLayers([mapLayer]);
                 setBigLayers([mapLayerBig, textLayer]);
@@ -174,59 +172,12 @@ const Main = () => {
         setMyServer(data);
     };
 
-    const submit = () => {
-        if(!loginStatus) {
+    const linkSocket = (code, map) => {
+        if (!loginStatus) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
-        if (operateStatus) {
-            setSubmitStatus(false);
-            ws.send(JSON.stringify({
-                cmd: "stop",
-            }));
-            log.close();
-            dispatch({type: 'SET_STATUS', status: false});
-        } else {
-            setSubmitStatus(true);
-            const currentCode = codeMirror.current.editor.getValue();
-            setLoading(true);
-            if (!ws) {
-                ws = new WebSocket(`ws://${WS_IP}:8093`);
-            } else {
-                ws.send(JSON.stringify({
-                    cmd: "run",
-                    lang: lang,
-                    code: currentCode,
-                }));
-            }
-            ws.onopen = () => {
-                ws.send(JSON.stringify({
-                    cmd: "run",
-                    lang: lang,
-                    code: currentCode,
-                }));
-            };
-            ws.onmessage = (evt) => {
-                const data = JSON.parse(evt.data);
-                if (data.state === 'init') {
-                    setLoading(false);
-                    handleSocket(data);
-                } else if (data.state === 'finish') {
-                }
-            };
-            ws.onclose = () => {
-                ws = new WebSocket(`ws://${WS_IP}:8093`);
-            };
-        }
-    };
-
-    const mapChange = (map_name) => {
-        console.log('----------'+map_name)
-        if(!loginStatus) {
-            dispatch({type: 'SET_LOGIN', status: true});
-            return;
-        }
-        
+        const currentCode = codeMirror.current.editor.getValue();
         setLoading(true);
         if (!ws) {
             ws = new WebSocket(`ws://${WS_IP}:8093`);
@@ -234,21 +185,20 @@ const Main = () => {
             ws.send(JSON.stringify({
                 cmd: "run",
                 lang: lang,
-                code: "",
-                map_name: map_name
+                code,
+                map_name: map,
             }));
         }
         ws.onopen = () => {
             ws.send(JSON.stringify({
                 cmd: "run",
                 lang: lang,
-                code: "",
-                map_name: map_name
+                code: currentCode,
+                map_name: map,
             }));
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            console.log(data)
             if (data.state === 'init') {
                 setLoading(false);
                 handleSocket(data);
@@ -258,8 +208,31 @@ const Main = () => {
         ws.onclose = () => {
             ws = new WebSocket(`ws://${WS_IP}:8093`);
         };
-    }
-    
+    };
+
+    // 运行
+    const submit = () => {
+        const currentCode = codeMirror.current.editor.getValue();
+        if (operateStatus) {
+            ws.send(JSON.stringify({
+                cmd: "stop",
+            }));
+            log.close();
+            dispatch({type: 'SET_OPERATE_STATUS', status: false});
+            return;
+        } else {
+            dispatch({type: 'SET_OPERATE_STATUS', status: true});
+        }
+        linkSocket(currentCode);
+    };
+
+    // 切换地图
+    const mapChange = (map_name) => {
+        linkSocket(map_name);
+        setMapStatus(true);
+    };
+
+    // 项目管理 保存
     const getCode = () => {
         return new Promise((resolve) => {
             const code = codeMirror.current.editor.getValue();
@@ -293,8 +266,8 @@ const Main = () => {
                             </Select>
                             <div className="main-top-label">地图：</div>
                             <Select placeholder="请选择地图"
-                                onChange={mapChange}
-                                className="select-right" defaultValue={undefined}>
+                                    onChange={mapChange}
+                                    className="select-left" defaultValue={undefined}>
                                 <Option value={'Town01'}>Town01</Option>
                                 <Option value={'Town02'}>Town02</Option>
                                 <Option value={'Town03'}>Town03</Option>
@@ -306,7 +279,7 @@ const Main = () => {
                         <div className="main-top-right">
                             <button className="submit" onClick={submit}>
                                 {
-                                    submitStatus ? '停止' : '运行'
+                                    operateStatus ? '停止' : '运行'
                                 }
                             </button>
                         </div>
@@ -336,7 +309,7 @@ const Main = () => {
             <div className="main-right">
                 <div className="main-right-item">
                     <div className="item-inner">
-                        {(log && operateStatus) ? <LogViewer
+                        {(log && (mapStatus || operateStatus)) ? <LogViewer
                             onClick={() => {
                                 setMapVisible(true)
                             }}
