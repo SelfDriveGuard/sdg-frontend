@@ -49,6 +49,7 @@ const Main = () => {
 
     useEffect(() => {
         if (customLayers.length > 0) {
+            setLoading(false);
         }
     }, [customLayers, dispatch]);
 
@@ -79,6 +80,7 @@ const Main = () => {
     };
 
     const handleSocket = (info) => {
+        if (carlaLog) return;
         carlaLog = new XVIZLiveLoader({
             logGuid: "mock",
             bufferLength: 10,
@@ -177,8 +179,8 @@ const Main = () => {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
-        const currentCode = codeMirror.current.editor.getValue();
         setLoading(true);
+        const currentCode = codeMirror.current.editor.getValue();
         if (!ws) {
             ws = new WebSocket(`ws://${WS_IP}:8093`);
         } else {
@@ -200,7 +202,6 @@ const Main = () => {
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
             if (data.state === 'init') {
-                setLoading(false);
                 handleSocket(data);
             } else if (data.state === 'finish') {
             }
@@ -224,11 +225,12 @@ const Main = () => {
             dispatch({type: 'SET_OPERATE_STATUS', status: true});
         }
         linkSocket(currentCode);
+        setLoading(false);
     };
 
     // 切换地图
     const mapChange = (map_name) => {
-        linkSocket(null, map_name);
+        linkSocket('', map_name);
         setMapStatus(true);
     };
 
@@ -241,105 +243,107 @@ const Main = () => {
     };
 
     return (
-        <div className="main">
+        <>
             <Menu getCode={getCode}/>
-            <div className="main-left">
-                <Spin spinning={loading} size="large">
-                    <div className="main-top">
-                        <div className="main-top-left">
-                            <div className="main-top-label">语言：</div>
-                            <Select placeholder="请选择语言"
-                                    onChange={langChange}
-                                    className="select-left" defaultValue={'scenest'}>
-                                <Option value={'scenest'}># scenest</Option>
-                                <Option value={'scenic'}># scenic</Option>
-                                <Option value={'scenario'}># scenario</Option>
-                            </Select>
-                            <div className="main-top-label">服务器：</div>
-                            <Select placeholder="请选择服务器"
-                                    className="select-left select-server" defaultValue={undefined}>
-                                {myServer.map((item) => {
-                                    return <Option value={item.ip} key={item.key}>
-                                        {item.ip}
-                                    </Option>
-                                })}
-                            </Select>
-                            <div className="main-top-label">地图：</div>
-                            <Select placeholder="请选择地图"
-                                    onChange={mapChange}
-                                    className="select-left" defaultValue={undefined}>
-                                <Option value={'Town01'}>Town01</Option>
-                                <Option value={'Town02'}>Town02</Option>
-                                <Option value={'Town03'}>Town03</Option>
-                                <Option value={'Town04'}>Town04</Option>
-                                <Option value={'Town05'}>Town05</Option>
-                            </Select>
-                        </div>
+            <Spin spinning={loading} size="large">
+                <div className="main">
+                    <div className="main-left">
+                        <div className="main-top">
+                            <div className="main-top-left">
+                                <div className="main-top-label">语言：</div>
+                                <Select placeholder="请选择语言"
+                                        onChange={langChange}
+                                        className="select-left" defaultValue={'scenest'}>
+                                    <Option value={'scenest'}># scenest</Option>
+                                    <Option value={'scenic'}># scenic</Option>
+                                    <Option value={'scenario'}># scenario</Option>
+                                </Select>
+                                <div className="main-top-label">服务器：</div>
+                                <Select placeholder="请选择服务器"
+                                        className="select-left select-server" defaultValue={undefined}>
+                                    {myServer.map((item) => {
+                                        return <Option value={item.ip} key={item.key}>
+                                            {item.ip}
+                                        </Option>
+                                    })}
+                                </Select>
+                                <div className="main-top-label">地图：</div>
+                                <Select placeholder="请选择地图"
+                                        onChange={mapChange}
+                                        className="select-left" defaultValue={undefined}>
+                                    <Option value={'Town01'}>Town01</Option>
+                                    <Option value={'Town02'}>Town02</Option>
+                                    <Option value={'Town03'}>Town03</Option>
+                                    <Option value={'Town04'}>Town04</Option>
+                                    <Option value={'Town05'}>Town05</Option>
+                                </Select>
+                            </div>
 
-                        <div className="main-top-right">
-                            <button className="submit" onClick={submit}>
-                                {
-                                    operateStatus ? '停止' : '运行'
-                                }
-                            </button>
+                            <div className="main-top-right">
+                                <button className="submit" onClick={submit}>
+                                    {
+                                        operateStatus ? '停止' : '运行'
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                        <div className="main-code">
+                            <Select placeholder="快速添加"
+                                    onChange={objectChange}
+                                    className="select-right" defaultValue={undefined}>
+                                <Option value={1}>地图</Option>
+                                <Option value={2}>控制车辆</Option>
+                                <Option value={3}>NPC车辆</Option>
+                                <Option value={4}>行人</Option>
+                                <Option value={5}>障碍物</Option>
+                            </Select>
+                            <CodeMirror
+                                value={code}
+                                ref={codeMirror}
+                                options={{
+                                    theme: 'base16-dark',
+                                    mode: 'jsx',
+                                    lineWrapping: true,
+                                }}
+                            />
                         </div>
                     </div>
-                    <div className="main-code">
-                        <Select placeholder="快速添加"
-                                onChange={objectChange}
-                                className="select-right" defaultValue={undefined}>
-                            <Option value={1}>地图</Option>
-                            <Option value={2}>控制车辆</Option>
-                            <Option value={3}>NPC车辆</Option>
-                            <Option value={4}>行人</Option>
-                            <Option value={5}>障碍物</Option>
-                        </Select>
-                        <CodeMirror
-                            value={code}
-                            ref={codeMirror}
-                            options={{
-                                theme: 'base16-dark',
-                                mode: 'jsx',
-                                lineWrapping: true,
-                            }}
-                        />
-                    </div>
-                </Spin>
-            </div>
-            <div className="main-right">
-                <div className="main-right-item">
-                    <div className="item-inner">
-                        {(log && (mapStatus || operateStatus)) ? <LogViewer
-                            onClick={() => {
-                                setMapVisible(true)
-                            }}
-                            log={log}
-                            showMap={false}
-                            car={CAR}
-                            xvizStyles={XVIZ_STYLE}
-                            showTooltip={true}
-                            viewMode={VIEW_MODE["TOP_DOWN"]}
-                            customLayers={customLayers}
-                        /> : <i className="iconfont iconpic"/>}
+                    <div className="main-right">
+                        <div className="main-right-item">
+                            <div className="item-inner">
+                                {(log && (mapStatus || operateStatus)) ? <LogViewer
+                                    onClick={() => {
+                                        setMapVisible(true)
+                                    }}
+                                    log={log}
+                                    showMap={false}
+                                    car={CAR}
+                                    xvizStyles={XVIZ_STYLE}
+                                    showTooltip={true}
+                                    viewMode={VIEW_MODE["TOP_DOWN"]}
+                                    customLayers={customLayers}
+                                /> : <i className="iconfont iconpic"/>}
+                            </div>
+                        </div>
+                        <div className="main-right-item">
+                            <div className="item-inner">
+                                {operateStatus
+                                    ? <img src={pic2} alt=""/>
+                                    : <i className="iconfont iconpic"/>
+                                }
+                            </div>
+                        </div>
+                        <div className="main-right-item">
+                            <div className="item-inner">
+                                {operateStatus
+                                    ? <XVIZPanel log={log} name="Camera"/>
+                                    : <i className="iconfont iconpic"/>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="main-right-item">
-                    <div className="item-inner">
-                        {operateStatus
-                            ? <img src={pic2} alt=""/>
-                            : <i className="iconfont iconpic"/>
-                        }
-                    </div>
-                </div>
-                <div className="main-right-item">
-                    <div className="item-inner">
-                        {operateStatus
-                            ? <XVIZPanel log={log} name="Camera"/>
-                            : <i className="iconfont iconpic"/>
-                        }
-                    </div>
-                </div>
-            </div>
+            </Spin>
             <ObstacleModal
                 visible={obstacleVisible} cancel={() => {
                 setObstacleVisible(false)
@@ -358,7 +362,7 @@ const Main = () => {
                 setMapVisible(false)
             }}
             />
-        </div>
+        </>
     )
 };
 
