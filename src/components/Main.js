@@ -228,7 +228,7 @@ const Main = () => {
 
     // 切换地图
     const mapChange = (map_name) => {
-        linkSocket(map_name);
+        linkSocket(null, map_name);
         setMapStatus(true);
     };
 
