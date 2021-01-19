@@ -37,7 +37,7 @@ const Main = () => {
     const [egoVisible, setEgoVisible] = useState(false);
     const [mapVisible, setMapVisible] = useState(false);
 
-    const [mapStatus, setMapStatus] = useState(false);
+    const [mapName, setMapName] = useState('');
     const [lang, setLang] = useState('scenest');
     const [loading, setLoading] = useState(false);
     const [myServer, setMyServer] = useState([]);
@@ -174,7 +174,7 @@ const Main = () => {
         setMyServer(data);
     };
 
-    const linkSocket = (code, map) => {
+    const linkSocket = (code, map, is_load_map) => {
         if (!loginStatus) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
@@ -189,6 +189,7 @@ const Main = () => {
                 lang: lang,
                 code,
                 map_name: map,
+                is_load_map: is_load_map
             }));
         }
         ws.onopen = () => {
@@ -197,6 +198,7 @@ const Main = () => {
                 lang: lang,
                 code: currentCode,
                 map_name: map,
+                is_load_map: is_load_map
             }));
         };
         ws.onmessage = (evt) => {
@@ -224,14 +226,14 @@ const Main = () => {
         } else {
             dispatch({type: 'SET_OPERATE_STATUS', status: true});
         }
-        linkSocket(currentCode);
+        linkSocket(currentCode, mapName, false);
         setLoading(false);
     };
 
     // 切换地图
     const mapChange = (map_name) => {
-        linkSocket('', map_name);
-        setMapStatus(true);
+        linkSocket('', map_name, true);
+        setMapName(map_name);
     };
 
     // 项目管理 保存
@@ -311,7 +313,7 @@ const Main = () => {
                     <div className="main-right">
                         <div className="main-right-item">
                             <div className="item-inner">
-                                {(log && (mapStatus || operateStatus)) ? <LogViewer
+                                {(log && (mapName || operateStatus)) ? <LogViewer
                                     onClick={() => {
                                         setMapVisible(true)
                                     }}
