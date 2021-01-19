@@ -4,7 +4,7 @@ import {CAR, XVIZ_STYLE} from "../constants";
 import {LogViewer, VIEW_MODE} from "streetscape.gl";
 
 const EgoModal = (props) => {
-    const {visible, cancel, log, layers} = props;
+    const {visible, cancel, log, layers, hoverLog} = props;
     const cancelModal = () => {
         cancel();
     };
@@ -30,6 +30,24 @@ const EgoModal = (props) => {
                                 customLayers={layers}
                             />
                         </div>
+                        {hoverLog.showHover ? (
+                            <div style={{
+                                position: "absolute",
+                                zIndex: 1000,
+                                background: "#333333",
+                                color: "#ffffff",
+                                pointerEvents: "none",
+                                borderRadius: "5px",
+                                padding: "0 5px",
+                                left: hoverLog.hoverObject.x,
+                                top: hoverLog.hoverObject.y
+                            }} >
+                                <p>roadId:{hoverLog.hoverObject.roadId}</p>
+                                <p>laneId:{hoverLog.hoverObject.laneId}</p>
+                            </div>
+                            ) : (
+                            <div></div>
+                        )}
                     </Modal> : ''}
         </>
     )
