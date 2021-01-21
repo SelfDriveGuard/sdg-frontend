@@ -66,7 +66,7 @@ const Main = () => {
             setHoverLog({
                 hoverObject: {
                     roadId: info.object.properties.name,
-                    laneId: info.object.properties.name,
+                    laneId: info.object.properties.laneId,
                     x: info.x,
                     y: info.y
                 },
@@ -96,6 +96,7 @@ const Main = () => {
         carlaLog.on("ready", () => {
             const metadata = carlaLog.getMetadata();
             if (metadata.map) {
+                console.log(metadata.map)
                 const config = {
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
                     coordinateOrigin: [0, 0, 0],
@@ -130,7 +131,6 @@ const Main = () => {
                     sizeUnits: 'meters',
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
                     coordinateOrigin: [0, 0, 0],
-                    pickable: true,
                     getPosition: d => d.geometry.coordinates[1],
                     getText: d => d.properties.name,
                     getColor: [255, 255, 0, 255],
