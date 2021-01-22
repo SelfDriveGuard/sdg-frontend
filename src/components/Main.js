@@ -35,7 +35,7 @@ const Main = () => {
     const [egoVisible, setEgoVisible] = useState(false);
     const [mapVisible, setMapVisible] = useState(false);
 
-    const [mapStatus, setMapStatus] = useState(false);
+    const [mapName, setMapName] = useState('');
     const [lang, setLang] = useState('scenest');
     const [loading, setLoading] = useState(false);
     const [myServer, setMyServer] = useState([]);
@@ -64,7 +64,7 @@ const Main = () => {
             setHoverLog({
                 hoverObject: {
                     roadId: info.object.properties.name,
-                    laneId: info.object.properties.name,
+                    laneId: info.object.properties.laneId,
                     x: info.x,
                     y: info.y
                 },
@@ -94,6 +94,7 @@ const Main = () => {
         carlaLog.on("ready", () => {
             const metadata = carlaLog.getMetadata();
             if (metadata.map) {
+                console.log(metadata.map)
                 const config = {
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
                     coordinateOrigin: [0, 0, 0],
@@ -128,7 +129,6 @@ const Main = () => {
                     sizeUnits: 'meters',
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
                     coordinateOrigin: [0, 0, 0],
-                    pickable: true,
                     getPosition: d => d.geometry.coordinates[1],
                     getText: d => d.properties.name,
                     getColor: [255, 255, 0, 255],
@@ -176,7 +176,7 @@ const Main = () => {
         setMyServer(data);
     };
 
-    const linkSocket = (code, map) => {
+    const linkSocket = (code, map, is_load_map) => {
         if (!loginStatus) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
@@ -191,6 +191,7 @@ const Main = () => {
                 lang: lang,
                 code,
                 map_name: map,
+                is_load_map: is_load_map
             }));
         }
         ws.onopen = () => {
@@ -199,6 +200,7 @@ const Main = () => {
                 lang: lang,
                 code: currentCode,
                 map_name: map,
+                is_load_map: is_load_map
             }));
         };
         ws.onmessage = (evt) => {
@@ -230,14 +232,14 @@ const Main = () => {
         } else {
             dispatch({type: 'SET_OPERATE_STATUS', status: true});
         }
-        linkSocket(currentCode);
+        linkSocket(currentCode, mapName, false);
         setLoading(false);
     };
 
     // 切换地图
     const mapChange = (map_name) => {
-        linkSocket('', map_name);
-        setMapStatus(true);
+        linkSocket('', map_name, true);
+        setMapName(map_name);
     };
 
     // 项目管理 保存
@@ -318,7 +320,7 @@ const Main = () => {
                     <div className="main-right">
                         <div className="main-right-item">
                             <div className="item-inner">
-                                {(log && (mapStatus || operateStatus)) ? <LogViewer
+                                {(log && (mapName || operateStatus)) ? <LogViewer
                                     onClick={() => {
                                         setMapVisible(true)
                                     }}
