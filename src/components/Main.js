@@ -2,7 +2,7 @@ import React, {useState, useContext, useRef, useEffect} from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
-import {Select, Spin} from 'antd';
+import {Select, Spin, message} from 'antd';
 import ObstacleModal from "./ObstacleModal";
 import EgoModal from "./EgoModal";
 import MapModal from "./MapModal";
@@ -22,9 +22,7 @@ import {XVIZ_STYLE, CAR} from "../constants";
 import IndexContext from "../context";
 import {myServerApi} from "../api";
 
-// const WS_IP = '172.16.203.135';
-// const WS_IP = '52.83.15.145';
-const WS_IP = '192.168.31.84';
+let WS_IP = '';
 
 const {Option} = Select;
 
@@ -166,6 +164,10 @@ const Main = () => {
         // }
     };
 
+    const serverChange = (val) => {
+        WS_IP = val;
+    };
+
     const getMyServer = async () => {
         const {data} = await myServerApi();
         data.forEach((item, index) => {
@@ -213,6 +215,10 @@ const Main = () => {
 
     // 运行
     const submit = () => {
+        if(!WS_IP) {
+            message.warning('请选择服务器');
+            return;
+        }
         const currentCode = codeMirror.current.editor.getValue();
         if (operateStatus) {
             ws.send(JSON.stringify({
@@ -260,6 +266,7 @@ const Main = () => {
                                 </Select>
                                 <div className="main-top-label">服务器：</div>
                                 <Select placeholder="请选择服务器"
+                                        onChange={serverChange}
                                         className="select-left select-server" defaultValue={undefined}>
                                     {myServer.map((item) => {
                                         return <Option value={item.ip} key={item.key}>
