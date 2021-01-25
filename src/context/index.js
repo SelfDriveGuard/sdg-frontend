@@ -5,5 +5,6 @@ const IndexContext = React.createContext({
     registerVisible: false,
     loginStatus: false,
     code: '',
+    myServer: [],
 });
 export default IndexContext;

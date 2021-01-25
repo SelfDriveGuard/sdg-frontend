@@ -29,7 +29,7 @@ const {Option} = Select;
 let carlaLog, ws;
 let mapLayer, mapLayerBig, textLayer;
 const Main = () => {
-    const {operateStatus, loginStatus, code, dispatch} = useContext(IndexContext);
+    const {operateStatus, loginStatus, code, myServer, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
     const [obstacleVisible, setObstacleVisible] = useState(false);
     const [egoVisible, setEgoVisible] = useState(false);
@@ -38,7 +38,6 @@ const Main = () => {
     const [mapName, setMapName] = useState('');
     const [lang, setLang] = useState('scenest');
     const [loading, setLoading] = useState(false);
-    const [myServer, setMyServer] = useState([]);
 
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
@@ -173,7 +172,7 @@ const Main = () => {
         data.forEach((item, index) => {
             item.key = index;
         });
-        setMyServer(data);
+        dispatch({type: 'SET_MY_SERVER', myServer: data});
     };
 
     const linkSocket = (code, map, is_load_map) => {

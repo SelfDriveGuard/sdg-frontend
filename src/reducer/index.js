@@ -4,6 +4,7 @@ const defaultState = {
     registerVisible: false, // 注册弹框
     loginStatus: false, // 是否登录
     code: '',
+    myServer: [], // 我的服务器列表
 };
 
 const reducer = (state = defaultState, action) => {
@@ -32,6 +33,11 @@ const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 code: action.code,
+            };
+        case 'SET_MY_SERVER':
+            return {
+                ...state,
+                myServer: action.myServer,
             };
         default:
             return state;

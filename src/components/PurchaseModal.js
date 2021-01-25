@@ -1,6 +1,7 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {Modal, message} from 'antd';
-import {getServersApi, buyServerApi} from '../api';
+import {getServersApi, buyServerApi, myServerApi} from '../api';
+import IndexContext from "../context";
 
 const obj = {
     0: 'A',
@@ -11,6 +12,8 @@ const obj = {
 const Purchase = (props) => {
     const {visible, cancel} = props;
     const [goods, setGoods] = useState([]);
+    const {dispatch} = useContext(IndexContext);
+
     useEffect(() => {
         if(visible) {
             (async () => {
@@ -32,6 +35,12 @@ const Purchase = (props) => {
         await buyServerApi({
             id: item._id,
         });
+        const {data} = await myServerApi();
+        data.forEach((item, index) => {
+            item.key = index;
+        });
+        dispatch({type: 'SET_MY_SERVER', myServer: data});
+
         message.success('购买成功');
         cancel();
     };

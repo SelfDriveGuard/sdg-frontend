@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import {Modal, Table} from 'antd';
-import {myServerApi} from '../api';
+import IndexContext from "../context";
 const columns = [
     {
         title: 'IP',
@@ -20,17 +20,13 @@ const columns = [
 const MyServer = (props) => {
     const {visible, cancel} = props;
     const [table, setTable] = useState([]);
+    const {myServer} = useContext(IndexContext);
+
     useEffect(() => {
         if(visible) {
-            (async () => {
-                const {data} = await myServerApi();
-                data.forEach((item, index) => {
-                   item.key = index;
-                });
-                setTable(data);
-            })()
+            setTable(myServer);
         }
-    }, [visible]);
+    }, [visible, myServer]);
     const cancelModal = () => {
         cancel();
     };
