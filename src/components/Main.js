@@ -27,6 +27,8 @@ let WS_IP = '';
 const {Option} = Select;
 let carlaLog, ws;
 let mapLayer, mapLayerBig, textLayer;
+let index = 0;
+
 const Main = () => {
     const {operateStatus, loginStatus, code, myServer, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
@@ -90,7 +92,6 @@ const Main = () => {
         });
         setLog(carlaLog);
         carlaLog.on("ready", () => {
-            console.log(1111);
             const metadata = carlaLog.getMetadata();
             if (metadata.map) {
                 const config = {
@@ -110,17 +111,17 @@ const Main = () => {
                 };
                 mapLayer = new GeoJsonLayer({
                     ...config,
-                    id: `carla_map`,
+                    id: `carla_map${index}`,
                 });
                 mapLayerBig = new GeoJsonLayer({
                     ...config,
-                    id: `carla_map_big`,
+                    id: `carla_map_big${index}`,
                     pickable: true,
                     onClick: info => _onLayerHover(info),
                     onHover: info => _onLayerHover(info)
                 });
                 textLayer = new TextLayer({
-                    id: `text-layer`,
+                    id: `text-layer${index}`,
                     data: metadata.map.features,
                     billboard: false,
                     fontFamily: 'sans-serif',
@@ -135,6 +136,7 @@ const Main = () => {
                     getTextAnchor: 'middle',
                     getAlignmentBaseline: 'center',
                 });
+                index += 1;
                 setCustomLayers([mapLayer]);
                 setBigLayers([mapLayerBig, textLayer]);
             }
@@ -172,15 +174,6 @@ const Main = () => {
     };
 
     const linkSocket = (code, map, is_load_map) => {
-        if (!loginStatus) {
-            dispatch({type: 'SET_LOGIN', status: true});
-            return;
-        }
-        if (!WS_IP) {
-            message.warning('请选择服务器');
-            return;
-        }
-        setLoading(true);
         const currentCode = codeMirror.current.editor.getValue();
         if (!ws) {
             ws = new WebSocket(`ws://${WS_IP}:8093`);
@@ -216,6 +209,15 @@ const Main = () => {
 
     // 运行
     const submit = () => {
+        if (!loginStatus) {
+            dispatch({type: 'SET_LOGIN', status: true});
+            return;
+        }
+        if (!WS_IP) {
+            message.warning('请选择服务器');
+            return;
+        }
+        setLoading(true);
         const currentCode = codeMirror.current.editor.getValue();
         if (operateStatus) {
             ws.send(JSON.stringify({
@@ -232,9 +234,22 @@ const Main = () => {
     };
 
     // 切换地图
-    const mapChange = (map_name) => {
-        linkSocket('', map_name, true);
-        setMapName(map_name);
+    const mapChange = async (map_name) => {
+        if (!loginStatus) {
+            dispatch({type: 'SET_LOGIN', status: true});
+            return;
+        }
+        if (!WS_IP) {
+            message.warning('请选择服务器');
+            return;
+        }
+        setLoading(true);
+        setCustomLayers([]);
+        setBigLayers([]);
+        setTimeout(() => {
+            linkSocket('', map_name, true);
+            setMapName(map_name);
+        }, 500);
     };
 
     // 项目管理 保存
