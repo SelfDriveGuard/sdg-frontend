@@ -25,7 +25,6 @@ import {myServerApi} from "../api";
 let WS_IP = '';
 
 const {Option} = Select;
-
 let carlaLog, ws;
 let mapLayer, mapLayerBig, textLayer;
 const Main = () => {
@@ -45,10 +44,10 @@ const Main = () => {
     const [hoverLog, setHoverLog] = useState({});
 
     useEffect(() => {
-        if (customLayers.length > 0) {
+        if (customLayers.length > 0 && bigLayers.length > 0) {
             setLoading(false);
         }
-    }, [customLayers, dispatch]);
+    }, [customLayers, bigLayers, dispatch]);
 
     useEffect(() => {
         if (loginStatus) {
@@ -91,9 +90,9 @@ const Main = () => {
         });
         setLog(carlaLog);
         carlaLog.on("ready", () => {
+            console.log(1111);
             const metadata = carlaLog.getMetadata();
             if (metadata.map) {
-                console.log(metadata.map)
                 const config = {
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
                     coordinateOrigin: [0, 0, 0],
@@ -121,7 +120,7 @@ const Main = () => {
                     onHover: info => _onLayerHover(info)
                 });
                 textLayer = new TextLayer({
-                    id: 'text-layer',
+                    id: `text-layer`,
                     data: metadata.map.features,
                     billboard: false,
                     fontFamily: 'sans-serif',
@@ -139,11 +138,13 @@ const Main = () => {
                 setCustomLayers([mapLayer]);
                 setBigLayers([mapLayerBig, textLayer]);
             }
-            carlaLog.socket.onclose = () => {
-
-            };
         })
             .on("error", console.error)
+            .on('update', () => {
+            })
+            .on('finish', () => {
+                console.log('finish');
+            })
             .connect();
     };
 
@@ -156,11 +157,6 @@ const Main = () => {
     };
     const langChange = (val) => {
         setLang(val);
-        // if (val === 'scenest') {
-        //     setCode(defaultCode);
-        // } else {
-        //     setCode('');
-        // }
     };
 
     const serverChange = (val) => {
@@ -178,6 +174,10 @@ const Main = () => {
     const linkSocket = (code, map, is_load_map) => {
         if (!loginStatus) {
             dispatch({type: 'SET_LOGIN', status: true});
+            return;
+        }
+        if (!WS_IP) {
+            message.warning('请选择服务器');
             return;
         }
         setLoading(true);
@@ -216,10 +216,6 @@ const Main = () => {
 
     // 运行
     const submit = () => {
-        if(!WS_IP) {
-            message.warning('请选择服务器');
-            return;
-        }
         const currentCode = codeMirror.current.editor.getValue();
         if (operateStatus) {
             ws.send(JSON.stringify({
