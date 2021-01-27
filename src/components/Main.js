@@ -249,7 +249,7 @@ const Main = () => {
         setTimeout(() => {
             linkSocket('', map_name, true);
             setMapName(map_name);
-        }, 500);
+        }, 1000);
     };
 
     // 项目管理 保存
