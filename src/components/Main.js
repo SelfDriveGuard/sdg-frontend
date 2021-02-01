@@ -224,6 +224,9 @@ const Main = () => {
                 cmd: "stop",
             }));
             log.close();
+            // setCustomLayers([]);
+            // setBigLayers([]);
+            setLoading(false);
             dispatch({type: 'SET_OPERATE_STATUS', status: false});
             return;
         } else {
@@ -354,7 +357,7 @@ const Main = () => {
                         </div>
                         <div className="main-right-item">
                             <div className="item-inner">
-                                {operateStatus
+                                {(operateStatus && log)
                                     ? <XVIZPanel log={log} name="Camera"/>
                                     : <i className="iconfont iconpic"/>
                                 }
