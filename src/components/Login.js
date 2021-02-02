@@ -23,10 +23,14 @@ const Login = () => {
         dispatch({type: 'SET_REGISTER', status: true});
     };
     const handleLogin = async () => {
-        await loginApi({
+        const {code} = await loginApi({
             userName,
             password,
         });
+        if(!code) {
+            message.error('用户名或密码错误');
+            return;
+        }
         cancelModal();
         message.success('登录成功');
         dispatch({type: 'SET_LOGIN_STATUS', status: true});
