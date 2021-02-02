@@ -225,7 +225,7 @@ const Main = () => {
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
-            log.close();
+            if(log) log.close();
             // setCustomLayers([]);
             // setBigLayers([]);
             setLoading(false);
