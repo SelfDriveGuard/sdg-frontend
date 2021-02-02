@@ -6,5 +6,6 @@ const IndexContext = React.createContext({
     loginStatus: false,
     code: '',
     myServer: [],
+    assertion: [],  //Assert关键点
 });
 export default IndexContext;

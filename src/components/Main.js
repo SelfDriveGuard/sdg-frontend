@@ -22,7 +22,7 @@ import {XVIZ_STYLE, CAR} from "../constants";
 import IndexContext from "../context";
 import {myServerApi} from "../api";
 
-let WS_IP = '';
+let WS_IP = '172.16.203.205';
 
 const {Option} = Select;
 let carlaLog, ws;
@@ -162,7 +162,7 @@ const Main = () => {
     };
 
     const serverChange = (val) => {
-        WS_IP = val;
+        // WS_IP = val;
     };
 
     const getMyServer = async () => {
@@ -200,6 +200,8 @@ const Main = () => {
             if (data.state === 'init') {
                 handleSocket(data);
             } else if (data.state === 'finish') {
+                console.log(data.assertion)
+                dispatch({type: 'SET_ASSERTION', cont: data.assertion});
             }
         };
         ws.onclose = () => {

@@ -4,7 +4,8 @@ const defaultState = {
     registerVisible: false, // 注册弹框
     loginStatus: false, // 是否登录
     code: '',
-    myServer: [], // 我的服务器列表
+    myServer: [], // 我的服务器列表,
+    assertion: [],  //Assert关键点
 };
 
 const reducer = (state = defaultState, action) => {
@@ -38,6 +39,11 @@ const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 myServer: action.myServer,
+            };
+        case 'SET_ASSERTION':
+            return {
+                ...state,
+                assertion: action.cont,
             };
         default:
             return state;

@@ -17,9 +17,9 @@ const AssertInfo = 'Type: overspeed detection<br/>' +
 let dragAble = false;
 let oldY = 0;
 const Footer = () => {
-    const {operateStatus} = useContext(IndexContext);
+    const {operateStatus, assertion} = useContext(IndexContext);
     const [tab, setTab] = useState(0);
-    const [cont, setCont] = useState('');
+    const [cont, setCont] = useState(Object);
 
     const [height, setHeight] = useState(38);
     useEffect(() => {
@@ -31,7 +31,7 @@ const Footer = () => {
             if(tab === 0) {
                 setCont(ScenarioInfo);
             } else {
-                setCont(AssertInfo);
+                setCont(assertion);
             }
         }
     }, [operateStatus, tab]);
@@ -41,7 +41,7 @@ const Footer = () => {
             if(val === 0) {
                 setCont(ScenarioInfo);
             } else {
-                setCont(AssertInfo);
+                setCont(assertion);
             }
         }
     };
@@ -83,10 +83,20 @@ const Footer = () => {
             </div>
             <div className="footer-main">
                 {operateStatus ? <div
-                    className="footer-inner"
-                    dangerouslySetInnerHTML={{__html: cont}}>
+                    className="footer-inner">
+                        { tab == 0 ? <div 
+                            dangerouslySetInnerHTML={{__html:cont}}>
+                            </div> : <div>{cont.map((item, index) => {
+                                    return <div key={index}>
+                                        {index+1}
+                                        <div>类型：{item.type}</div>
+                                        <div>时间戳：{item.timestamp}</div>
+                                        <div>描述：{item.description}</div>
+                                    </div>
+                                })}</div>
+                        }
                 </div> : ''}
-
+                
             </div>
         </div>
     )
