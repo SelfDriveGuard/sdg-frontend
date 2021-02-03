@@ -197,10 +197,9 @@ const Main = () => {
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            if (data.state === 'init') {
+            if (data.state === 'started') {
                 handleSocket(data);
             } else if (data.state === 'finish') {
-                console.log(data.assertion)
                 dispatch({type: 'SET_ASSERTION', cont: data.assertion});
             }
         };
