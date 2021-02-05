@@ -22,7 +22,7 @@ import {XVIZ_STYLE, CAR} from "../constants";
 import IndexContext from "../context";
 import {myServerApi} from "../api";
 
-let WS_IP = '172.16.203.205';
+let WS_IP = '';
 
 const {Option} = Select;
 let carlaLog, ws;
@@ -162,7 +162,7 @@ const Main = () => {
     };
 
     const serverChange = (val) => {
-        // WS_IP = val;
+        WS_IP = val;
     };
 
     const getMyServer = async () => {
@@ -224,7 +224,7 @@ const Main = () => {
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
-            if(log) log.close();
+            if (log) log.close();
             // setCustomLayers([]);
             // setBigLayers([]);
             setLoading(false);
