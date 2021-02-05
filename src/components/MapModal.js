@@ -25,7 +25,7 @@ const EgoModal = (props) => {
                                 showMap={false}
                                 car={CAR}
                                 xvizStyles={XVIZ_STYLE}
-                                showTooltip={true}
+                                showTooltip={!hoverLog.showHover}
                                 viewMode={VIEW_MODE["TOP_DOWN"]}
                                 customLayers={layers}
                             />
