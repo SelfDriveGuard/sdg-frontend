@@ -39,7 +39,7 @@ const EgoModal = (props) => {
                                 <p><span className="label">roadId:</span> {hoverLog.hoverObject.roadId}</p>
                                 <p><span className="label">laneId:</span> {hoverLog.hoverObject.laneId}</p>
                                 <p><span className="label">positionX:</span> {hoverLog.hoverObject.positionX}</p>
-                                <p><span className="label">positionY:</span> {hoverLog.hoverObject.positionY}</p>
+                                <p><span className="label">positionY:</span> {-hoverLog.hoverObject.positionY}</p>
                             </div>
                             ) : (
                             <></>
