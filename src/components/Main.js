@@ -77,7 +77,7 @@ const Main = () => {
         }
     };
 
-    const handleSocket = (info) => {
+    const handleSocket = () => {
         if (carlaLog) return;
         carlaLog = new XVIZLiveLoader({
             logGuid: "mock",
@@ -163,6 +163,9 @@ const Main = () => {
 
     const serverChange = (val) => {
         WS_IP = val;
+        const currentCode = codeMirror.current.editor.getValue();
+        linkSocket(currentCode, mapName, false);
+        handleSocket();
     };
 
     const getMyServer = async () => {
@@ -174,7 +177,6 @@ const Main = () => {
     };
 
     const linkSocket = (code, map, is_load_map) => {
-        const currentCode = codeMirror.current.editor.getValue();
         if (!ws) {
             ws = new WebSocket(`ws://${WS_IP}:8093`);
         } else {
@@ -187,19 +189,14 @@ const Main = () => {
             }));
         }
         ws.onopen = () => {
-            ws.send(JSON.stringify({
-                cmd: "run",
-                lang: lang,
-                code: currentCode,
-                map_name: map,
-                is_load_map: is_load_map
-            }));
+            ws.send(JSON.stringify({}));
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            if (data.state === 'started') {
-                handleSocket(data);
-            } else if (data.state === 'finish') {
+            if (data.state === 'isRunning') {
+                dispatch({type: 'SET_OPERATE_STATUS', status: true});
+            } else if (data.state === 'notRunning') {
+                dispatch({type: 'SET_OPERATE_STATUS', status: false});
                 dispatch({type: 'SET_ASSERTION', cont: data.assertion});
             }
         };
@@ -219,21 +216,23 @@ const Main = () => {
             return;
         }
         setLoading(true);
-        const currentCode = codeMirror.current.editor.getValue();
         if (operateStatus) {
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
-            if (log) log.close();
-            // setCustomLayers([]);
-            // setBigLayers([]);
+            // if (log) log.close();
             setLoading(false);
-            dispatch({type: 'SET_OPERATE_STATUS', status: false});
             return;
         } else {
-            dispatch({type: 'SET_OPERATE_STATUS', status: true});
+            const currentCode = codeMirror.current.editor.getValue();
+            ws.send(JSON.stringify({
+                cmd: "run",
+                lang: lang,
+                code: currentCode,
+                map_name: mapName,
+                is_load_map: false,
+            }));
         }
-        linkSocket(currentCode, mapName, false);
         setLoading(false);
     };
 
