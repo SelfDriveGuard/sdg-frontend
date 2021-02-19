@@ -14,23 +14,19 @@ const Footer = () => {
         setHeight(initHeight);
     }, []);
     useEffect(() => {
-        if(operateStatus) {
-            if(tab === 0) {
-                // setCont(ScenarioInfo);
-            } else {
-                setCont(assertion);
-            }
+        if(tab === 0) {
+            // setCont(ScenarioInfo);
+        } else {
+            setCont(assertion);
         }
     }, [operateStatus, tab, assertion]);
     const tabChange = (val) => {
         setTab(val);
-        if(operateStatus) {
-            if(val === 0) {
-                // setCont(ScenarioInfo);
-            } else {
-                setCont(assertion);
-            }
-        }
+        if(val === 0) {
+            // setCont(ScenarioInfo);
+        } else {
+            setCont(assertion);
+        }  
     };
 
     const handleMousedown = (e) => {
@@ -69,11 +65,11 @@ const Footer = () => {
                 </div>
             </div>
             <div className="footer-main">
-                {operateStatus ? <div
+                {!operateStatus ? <div
                     className="footer-inner">
                         { tab === 0 ? <div
-                            dangerouslySetInnerHTML={{__html:cont}}>
-                            </div> : <div>{cont.map((item, index) => {
+                            dangerouslySetInnerHTML={{__html:''}}>
+                            </div> : cont && <div>{cont.map((item, index) => {
                                     return <div key={index}>
                                         {index+1}
                                         <div>类型：{item.type}</div>
