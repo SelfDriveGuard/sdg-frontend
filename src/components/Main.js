@@ -65,6 +65,8 @@ const Main = () => {
                 hoverObject: {
                     roadId: info.object.properties.name,
                     laneId: info.object.properties.laneId,
+                    positionX: info.object.geometry.coordinates ? info.object.geometry.coordinates[0][0].toFixed(2) : '',
+                    positionY: info.object.geometry.coordinates ? info.object.geometry.coordinates[0][1].toFixed(2) : '',
                     x: info.x,
                     y: info.y
                 },
@@ -120,25 +122,26 @@ const Main = () => {
                     onClick: info => _onLayerHover(info),
                     onHover: info => _onLayerHover(info)
                 });
-                textLayer = new TextLayer({
-                    id: `text-layer${index}`,
-                    data: metadata.map.features,
-                    billboard: false,
-                    fontFamily: 'sans-serif',
-                    sizeUnits: 'meters',
-                    coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-                    coordinateOrigin: [0, 0, 0],
-                    getPosition: d => d.geometry.coordinates[1],
-                    getText: d => d.properties.name,
-                    getColor: [255, 255, 0, 255],
-                    getSize: 0.3,
-                    getAngle: 0,
-                    getTextAnchor: 'middle',
-                    getAlignmentBaseline: 'center',
-                });
+                // textLayer = new TextLayer({
+                //     id: `text-layer${index}`,
+                //     data: metadata.map.features,
+                //     billboard: false,
+                //     fontFamily: 'sans-serif',
+                //     sizeUnits: 'meters',
+                //     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
+                //     coordinateOrigin: [0, 0, 0],
+                //     getPosition: d => d.geometry.coordinates[1],
+                //     getText: d => d.properties.name,
+                //     getColor: [255, 255, 0, 255],
+                //     getSize: 0.3,
+                //     getAngle: 0,
+                //     getTextAnchor: 'middle',
+                //     getAlignmentBaseline: 'center',
+                // });
                 index += 1;
                 setCustomLayers([mapLayer]);
-                setBigLayers([mapLayerBig, textLayer]);
+                //setBigLayers([mapLayerBig, textLayer]);
+                setBigLayers([mapLayerBig]);
             }
         })
             .on("error", console.error)
