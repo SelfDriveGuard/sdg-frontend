@@ -9,7 +9,7 @@ import MapModal from "./MapModal";
 import Menu from "./Menu";
 
 import pic2 from '../static/img/pic2.png';
-import {GeoJsonLayer, TextLayer} from "@deck.gl/layers";
+import {GeoJsonLayer} from "@deck.gl/layers";
 import {COORDINATE_SYSTEM} from "@deck.gl/core";
 import {
     LogViewer,
@@ -26,7 +26,7 @@ let WS_IP = '';
 
 const {Option} = Select;
 let carlaLog, ws;
-let mapLayer, mapLayerBig, textLayer;
+let mapLayer, mapLayerBig;
 let index = 0;
 
 const Main = () => {

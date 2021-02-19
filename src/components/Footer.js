@@ -1,19 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import IndexContext from "../context";
 
-const ScenarioInfo = 'Map name: San Francisco<br/>' +
-    'ego vehicle info:<br/>' +
-    'Init position = (4.5, 214)<br/>' +
-    'Target position = (4.5, -200)<br/>' +
-    'Car model = "Lincoln MKZ 2017"<br/>' +
-    'Car color = (255, 0, 0)<br/>' +
-    'environment:<br/>' +
-    'time = 10:00;<br/>' +
-    'weather = {rain: 0.1}';
-
-const AssertInfo = 'Type: overspeed detection<br/>' +
-    'Speed limitation at (4.5, 214) position is : 45m/s<br/>' +
-    'Ego char speed is: 60m/s';
 let dragAble = false;
 let oldY = 0;
 const Footer = () => {
@@ -29,17 +16,17 @@ const Footer = () => {
     useEffect(() => {
         if(operateStatus) {
             if(tab === 0) {
-                setCont(ScenarioInfo);
+                // setCont(ScenarioInfo);
             } else {
                 setCont(assertion);
             }
         }
-    }, [operateStatus, tab]);
+    }, [operateStatus, tab, assertion]);
     const tabChange = (val) => {
         setTab(val);
         if(operateStatus) {
             if(val === 0) {
-                setCont(ScenarioInfo);
+                // setCont(ScenarioInfo);
             } else {
                 setCont(assertion);
             }
@@ -84,7 +71,7 @@ const Footer = () => {
             <div className="footer-main">
                 {operateStatus ? <div
                     className="footer-inner">
-                        { tab == 0 ? <div 
+                        { tab === 0 ? <div
                             dangerouslySetInnerHTML={{__html:cont}}>
                             </div> : <div>{cont.map((item, index) => {
                                     return <div key={index}>
@@ -96,7 +83,7 @@ const Footer = () => {
                                 })}</div>
                         }
                 </div> : ''}
-                
+
             </div>
         </div>
     )
