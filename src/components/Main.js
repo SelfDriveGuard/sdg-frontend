@@ -60,8 +60,8 @@ const Main = () => {
     }, [loginStatus]);
 
     const handleCodeBlur = () => {
-        const code = codeMirror.current.editor.getValue();
-        dispatch({type: 'SET_CODE', code});
+        // const code = codeMirror.current.editor.getValue();
+        // dispatch({type: 'SET_CODE', code});
     };
 
     const _onLayerHover = (info) => {
@@ -222,7 +222,7 @@ const Main = () => {
         if (!WS_IP) {
             message.warning('请选择服务器');
             return;
-        }     
+        }
         if (!code) {
             message.warning('代码不能为空');
             return;
