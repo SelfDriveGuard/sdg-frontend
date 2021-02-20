@@ -218,6 +218,7 @@ const Main = () => {
             message.warning('请选择服务器');
             return;
         }
+        handleSocket();
         setLoading(true);
         if (operateStatus) {
             ws.send(JSON.stringify({
