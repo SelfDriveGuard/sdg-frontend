@@ -168,7 +168,7 @@ const Main = () => {
         WS_IP = val;
         const currentCode = codeMirror.current.editor.getValue();
         linkSocket(currentCode, mapName, false);
-        handleSocket();
+        //handleSocket();
     };
 
     const getMyServer = async () => {
@@ -252,6 +252,7 @@ const Main = () => {
         setLoading(true);
         setCustomLayers([]);
         setBigLayers([]);
+        handleSocket();
         setTimeout(() => {
             linkSocket('', map_name, true);
             setMapName(map_name);
