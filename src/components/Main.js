@@ -223,7 +223,7 @@ const Main = () => {
             message.warning('请选择服务器');
             return;
         }     
-        if (!code.val) {
+        if (!code) {
             message.warning('代码不能为空');
             return;
         }
