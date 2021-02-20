@@ -59,6 +59,11 @@ const Main = () => {
         }
     }, [loginStatus]);
 
+    const handleCodeBlur = () => {
+        const code = codeMirror.current.editor.getValue();
+        dispatch({type: 'SET_CODE', code});
+    };
+
     const _onLayerHover = (info) => {
         if (info.object) {
             setHoverLog({
@@ -217,6 +222,10 @@ const Main = () => {
         if (!WS_IP) {
             message.warning('请选择服务器');
             return;
+        }     
+        if (!code.val) {
+            message.warning('代码不能为空');
+            return;
         }
         handleSocket();
         setLoading(true);
@@ -326,6 +335,7 @@ const Main = () => {
                             </Select>
                             <CodeMirror
                                 value={code}
+                                onBlur={handleCodeBlur}
                                 ref={codeMirror}
                                 options={{
                                     theme: 'base16-dark',
