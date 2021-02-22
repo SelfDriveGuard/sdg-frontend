@@ -27,6 +27,9 @@ sudo apt-get install yarn
 
 参考 https://blog.csdn.net/weixin_41996632/article/details/103893264
 
+## 安装依赖包
+yarn install
+
 ## 开发
 yarn start
 
