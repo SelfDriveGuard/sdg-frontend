@@ -7,6 +7,8 @@
 
 https://guard-strike.oss-cn-shanghai.aliyuncs.com/ADTest/node-v14.15.5-linux-x64.tar.xz
 
+环境变量配置：https://github.com/nodejs/help/wiki/Installation
+
 ### yarn: 
 
 sudo apt-get update
