@@ -92,7 +92,6 @@ const Main = () => {
         });
         setLog(carlaLog);
         carlaLog.on("ready", () => {
-            console.log('8091 ready');
             const metadata = carlaLog.getMetadata();
             if (metadata.map) {
                 const config = {
@@ -139,7 +138,7 @@ const Main = () => {
                 // });
                 index += 1;
                 setCustomLayers([mapLayer]);
-                //setBigLayers([mapLayerBig, textLayer]);
+                // setBigLayers([mapLayerBig, textLayer]);
                 setBigLayers([mapLayerBig]);
             }
         })
@@ -196,12 +195,12 @@ const Main = () => {
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            const {state, msg, cmd } = data;
-            if(cmd && cmd !== 'ASSERT') {
+            const { state, msg, cmd } = data;
+            if (cmd && cmd !== 'ASSERT') {
                 outputLog.push({cmd, msg});
                 dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
             }
-            if(cmd === 'READY') dispatch({type: 'SET_LOADING', loading: false});
+            if (cmd === 'READY') dispatch({type: 'SET_LOADING', loading: false});
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
                 if(cmd === 'DRIVING') {
@@ -215,7 +214,7 @@ const Main = () => {
                 }
             } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
-                if(cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
+                if (cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
             }
         };
         ws.onclose = () => {
@@ -243,7 +242,11 @@ const Main = () => {
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
-            // if (log) log.close();
+            if (log) {
+                carlaLog.close();
+                carlaLog = null;
+                setLog(carlaLog);
+            }
             dispatch({type: 'SET_LOADING', loading: false});
         } else {
             const currentCode = codeMirror.current.editor.getValue();
@@ -254,7 +257,7 @@ const Main = () => {
                 map_name: mapName,
                 is_load_map: false,
             }));
-            outputLog.push({cmd: '', msg: '正在启动'});
+            outputLog.push({cmd: '', msg: '正在启动...'});
             dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         }
     };
@@ -270,7 +273,7 @@ const Main = () => {
             return;
         }
         dispatch({type: 'SET_LOADING', loading: true});
-        outputLog.push({cmd: '', msg: '正在启动'});
+        outputLog.push({cmd: '', msg: '正在启动...'});
         dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         setCustomLayers([]);
         setBigLayers([]);

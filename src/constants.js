@@ -93,4 +93,4 @@ export const VIEW_STATE = {
     transitionDuration: 0,
     width: 268,
     zoom: 15
-}
+};
