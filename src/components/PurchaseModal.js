@@ -25,8 +25,12 @@ const Purchase = (props) => {
         const {data} = await getServersApi();
         data.forEach((item, index) => {
             item.name = obj[index];
+            item.key = index;
         });
-        setGoods(data);
+        const server = data.filter((item) => {
+            return !item._user;
+        });
+        setGoods(server);
     };
     const cancelModal = () => {
         cancel();
@@ -55,7 +59,7 @@ const Purchase = (props) => {
             title="立即购买">
             <div className="purchase">
                 {goods.map((item) => {
-                    return <div className="purchase-item" key={item.name}>
+                    return <div className="purchase-item" key={item.key}>
                         <div className="purchase-cont">
                             <div className="purchase-top">
                                 产品{item.name}

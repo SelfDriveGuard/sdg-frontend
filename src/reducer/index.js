@@ -6,6 +6,8 @@ const defaultState = {
     code: '',
     myServer: [], // 我的服务器列表,
     assertion: [],  //Assert关键点
+    loading: false,
+    outputMsg: [],
 };
 
 const reducer = (state = defaultState, action) => {
@@ -44,6 +46,16 @@ const reducer = (state = defaultState, action) => {
             return {
                 ...state,
                 assertion: action.cont,
+            };
+        case 'SET_LOADING':
+            return {
+                ...state,
+                loading: action.loading,
+            };
+        case 'SET_OUTPUT_MSG':
+            return {
+                ...state,
+                outputMsg: action.outputMsg,
             };
         default:
             return state;

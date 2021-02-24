@@ -8,7 +8,6 @@ import EgoModal from "./EgoModal";
 import MapModal from "./MapModal";
 import Menu from "./Menu";
 
-import pic2 from '../static/img/pic2.png';
 import {GeoJsonLayer} from "@deck.gl/layers";
 import {COORDINATE_SYSTEM} from "@deck.gl/core";
 import {
@@ -29,8 +28,9 @@ let carlaLog, ws;
 let mapLayer, mapLayerBig;
 let index = 0;
 
+const outputLog = [];
 const Main = () => {
-    const {operateStatus, loginStatus, code, myServer, dispatch} = useContext(IndexContext);
+    const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
     const [obstacleVisible, setObstacleVisible] = useState(false);
     const [egoVisible, setEgoVisible] = useState(false);
@@ -38,18 +38,11 @@ const Main = () => {
 
     const [mapName, setMapName] = useState('');
     const [lang, setLang] = useState('scenest');
-    const [loading, setLoading] = useState(false);
 
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
     const [bigLayers, setBigLayers] = useState([]);
     const [hoverLog, setHoverLog] = useState({});
-
-    useEffect(() => {
-        if (customLayers.length > 0 && bigLayers.length > 0) {
-            setLoading(false);
-        }
-    }, [customLayers, bigLayers, dispatch]);
 
     useEffect(() => {
         if (loginStatus) {
@@ -99,6 +92,7 @@ const Main = () => {
         });
         setLog(carlaLog);
         carlaLog.on("ready", () => {
+            console.log('8091 ready');
             const metadata = carlaLog.getMetadata();
             if (metadata.map) {
                 const config = {
@@ -165,6 +159,7 @@ const Main = () => {
             setObstacleVisible(true);
         }
     };
+
     const langChange = (val) => {
         setLang(val);
     };
@@ -201,11 +196,26 @@ const Main = () => {
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            if (data.state === 'isRunning') {
+            const {state, msg, cmd } = data;
+            if(cmd && cmd !== 'ASSERT') {
+                outputLog.push({cmd, msg});
+                dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
+            }
+            if(cmd === 'READY') dispatch({type: 'SET_LOADING', loading: false});
+            if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
-            } else if (data.state === 'notRunning') {
+                if(cmd === 'DRIVING') {
+                    const wrapper = document.querySelectorAll('.item-inner')[2];
+                    const select = wrapper.querySelector('select');
+                    const option = wrapper.querySelectorAll('option')[1];
+                    select.value = option.innerText;
+                    const evt = document.createEvent("Events");
+                    evt.initEvent('change',true,true);
+                    select.dispatchEvent(evt);
+                }
+            } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
-                dispatch({type: 'SET_ASSERTION', cont: data.assertion});
+                if(cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
             }
         };
         ws.onclose = () => {
@@ -228,14 +238,13 @@ const Main = () => {
             return;
         }
         handleSocket();
-        setLoading(true);
+        dispatch({type: 'SET_LOADING', loading: true});
         if (operateStatus) {
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
             // if (log) log.close();
-            setLoading(false);
-            return;
+            dispatch({type: 'SET_LOADING', loading: false});
         } else {
             const currentCode = codeMirror.current.editor.getValue();
             ws.send(JSON.stringify({
@@ -245,8 +254,9 @@ const Main = () => {
                 map_name: mapName,
                 is_load_map: false,
             }));
+            outputLog.push({cmd: '', msg: '正在启动'});
+            dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         }
-        setLoading(false);
     };
 
     // 切换地图
@@ -259,7 +269,9 @@ const Main = () => {
             message.warning('请选择服务器');
             return;
         }
-        setLoading(true);
+        dispatch({type: 'SET_LOADING', loading: true});
+        outputLog.push({cmd: '', msg: '正在启动'});
+        dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         setCustomLayers([]);
         setBigLayers([]);
         handleSocket();
@@ -324,15 +336,15 @@ const Main = () => {
                             </div>
                         </div>
                         <div className="main-code">
-                            <Select placeholder="快速添加"
-                                    onChange={objectChange}
-                                    className="select-right" defaultValue={undefined}>
-                                <Option value={1}>地图</Option>
-                                <Option value={2}>控制车辆</Option>
-                                <Option value={3}>NPC车辆</Option>
-                                <Option value={4}>行人</Option>
-                                <Option value={5}>障碍物</Option>
-                            </Select>
+                            {/*<Select placeholder="快速添加"*/}
+                            {/*        onChange={objectChange}*/}
+                            {/*        className="select-right" defaultValue={undefined}>*/}
+                            {/*    <Option value={1}>地图</Option>*/}
+                            {/*    <Option value={2}>控制车辆</Option>*/}
+                            {/*    <Option value={3}>NPC车辆</Option>*/}
+                            {/*    <Option value={4}>行人</Option>*/}
+                            {/*    <Option value={5}>障碍物</Option>*/}
+                            {/*</Select>*/}
                             <CodeMirror
                                 value={code}
                                 onBlur={handleCodeBlur}
@@ -364,8 +376,8 @@ const Main = () => {
                         </div>
                         <div className="main-right-item">
                             <div className="item-inner">
-                                {operateStatus
-                                    ? <img src={pic2} alt=""/>
+                                {(operateStatus && log)
+                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
                                     : <i className="iconfont iconpic"/>
                                 }
                             </div>
@@ -373,7 +385,7 @@ const Main = () => {
                         <div className="main-right-item">
                             <div className="item-inner">
                                 {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera"/>
+                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
                                     : <i className="iconfont iconpic"/>
                                 }
                             </div>
