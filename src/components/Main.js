@@ -17,7 +17,7 @@ import {
     XVIZLiveLoader,
     VIEW_MODE,
 } from "streetscape.gl";
-import {XVIZ_STYLE, CAR} from "../constants";
+import {XVIZ_STYLE, CAR, VIEW_OFFSET, VIEW_STATE} from "../constants";
 
 import IndexContext from "../context";
 import {myServerApi} from "../api";
@@ -358,6 +358,8 @@ const Main = () => {
                                     xvizStyles={XVIZ_STYLE}
                                     showTooltip={true}
                                     viewMode={VIEW_MODE["TOP_DOWN"]}
+                                    viewOffset={VIEW_OFFSET}
+                                    viewState={VIEW_STATE}
                                     customLayers={customLayers}
                                 /> : <i className="iconfont iconpic"/>}
                             </div>
