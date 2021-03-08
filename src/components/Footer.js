@@ -10,10 +10,6 @@ const Footer = () => {
 
     const [height, setHeight] = useState(38);
     useEffect(() => {
-        const initHeight = document.body.clientHeight - 716;
-        setHeight(initHeight);
-    }, []);
-    useEffect(() => {
         if (tab === 0) {
             setCont(outputMsg);
         } else {
@@ -23,6 +19,10 @@ const Footer = () => {
 
     const tabChange = (val) => {
         setTab(val);
+    };
+
+    const handleFold = (height) => {
+        setHeight(height);
     };
 
     const handleMousedown = (e) => {
@@ -63,6 +63,9 @@ const Footer = () => {
                         {/*<button className="play-btn">*/}
                         {/*    <i className="iconfont iconvideo"/>*/}
                         {/*    视频回放</button>*/}
+                        {height === 38 ?
+                            <i className="iconfont iconarrow active" onClick={() => {handleFold(250)}}/> :
+                            <i className="iconfont iconarrow" onClick={() => {handleFold(38)}}/>}
                     </div>
                 </div>
             </div>

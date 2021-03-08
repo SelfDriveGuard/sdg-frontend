@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './static/style/App.less';
-import Index from './pages/Index'
+import AppRouter from './router'
 ReactDOM.render(
-    <Index/>,
+    <AppRouter/>,
     document.getElementById('root')
 );

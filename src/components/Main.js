@@ -2,11 +2,11 @@ import React, {useState, useContext, useRef, useEffect} from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
-import {Select, Spin, message} from 'antd';
+import {Select, Spin, message, Tabs} from 'antd';
 import ObstacleModal from "./ObstacleModal";
 import EgoModal from "./EgoModal";
 import MapModal from "./MapModal";
-import Menu from "./Menu";
+import ProjectMenu from "./ProjectMenu";
 
 import {GeoJsonLayer} from "@deck.gl/layers";
 import {COORDINATE_SYSTEM} from "@deck.gl/core";
@@ -21,6 +21,7 @@ import {XVIZ_STYLE, CAR, VIEW_OFFSET, VIEW_STATE} from "../constants";
 import IndexContext from "../context";
 import {myServerApi} from "../api";
 
+const { TabPane } = Tabs;
 let WS_IP = '';
 
 const {Option} = Select;
@@ -74,6 +75,20 @@ const Main = () => {
             setHoverLog({
                 showHover: false
             });
+        }
+    };
+
+    const tabCallback = (val) => {
+        if(val === "4" && operateStatus) {
+            setTimeout(() => {
+                const wrapper = document.querySelectorAll('.item-view')[0];
+                const select = wrapper.querySelector('select');
+                const option = wrapper.querySelectorAll('option')[1];
+                select.value = option.innerText;
+                const evt = document.createEvent("Events");
+                evt.initEvent('change',true,true);
+                select.dispatchEvent(evt);
+            }, 1000);
         }
     };
 
@@ -204,13 +219,7 @@ const Main = () => {
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
                 if(cmd === 'DRIVING') {
-                    const wrapper = document.querySelectorAll('.item-inner')[2];
-                    const select = wrapper.querySelector('select');
-                    const option = wrapper.querySelectorAll('option')[1];
-                    select.value = option.innerText;
-                    const evt = document.createEvent("Events");
-                    evt.initEvent('change',true,true);
-                    select.dispatchEvent(evt);
+
                 }
             } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
@@ -249,6 +258,7 @@ const Main = () => {
             }
             dispatch({type: 'SET_LOADING', loading: false});
         } else {
+            dispatch({type: 'SET_ASSERTION', cont: []}); // 清空assertion
             const currentCode = codeMirror.current.editor.getValue();
             ws.send(JSON.stringify({
                 cmd: "run",
@@ -294,108 +304,117 @@ const Main = () => {
 
     return (
         <>
-            <Menu getCode={getCode}/>
+            <ProjectMenu getCode={getCode}/>
             <Spin spinning={loading} size="large">
                 <div className="main">
-                    <div className="main-left">
-                        <div className="main-top">
-                            <div className="main-top-left">
-                                <div className="main-top-label">语言：</div>
-                                <Select placeholder="请选择语言"
-                                        onChange={langChange}
-                                        className="select-left" defaultValue={'scenest'}>
-                                    <Option value={'scenest'}># scenest</Option>
-                                    <Option value={'scenic'}># scenic</Option>
-                                    <Option value={'scenario'}># scenario</Option>
-                                </Select>
-                                <div className="main-top-label">服务器：</div>
-                                <Select placeholder="请选择服务器"
-                                        onChange={serverChange}
-                                        className="select-left select-server" defaultValue={undefined}>
-                                    {myServer.map((item) => {
-                                        return <Option value={item.ip} key={item.key}>
-                                            {item.ip}
-                                        </Option>
-                                    })}
-                                </Select>
-                                <div className="main-top-label">地图：</div>
-                                <Select placeholder="请选择地图"
-                                        onChange={mapChange}
-                                        className="select-left" defaultValue={undefined}>
-                                    <Option value={'Town01'}>Town01</Option>
-                                    <Option value={'Town02'}>Town02</Option>
-                                    <Option value={'Town03'}>Town03</Option>
-                                    <Option value={'Town04'}>Town04</Option>
-                                    <Option value={'Town05'}>Town05</Option>
-                                </Select>
-                            </div>
+                    <Tabs defaultActiveKey="1" onChange={tabCallback}>
+                        <TabPane tab="代码" key="1">
+                            <div className="main-tab1">
+                                <div className="main-top">
+                                    <div className="main-top-left">
+                                        <div className="main-top-label">语言：</div>
+                                        <Select placeholder="请选择语言"
+                                                onChange={langChange}
+                                                className="select-left" defaultValue={'scenest'}>
+                                            <Option value={'scenest'}># scenest</Option>
+                                            <Option value={'scenic'}># scenic</Option>
+                                            <Option value={'scenario'}># scenario</Option>
+                                        </Select>
+                                        <div className="main-top-label">服务器：</div>
+                                        <Select placeholder="请选择服务器"
+                                                onChange={serverChange}
+                                                className="select-left select-server" defaultValue={undefined}>
+                                            {myServer.map((item) => {
+                                                return <Option value={item.ip} key={item.key}>
+                                                    {item.ip}
+                                                </Option>
+                                            })}
+                                        </Select>
+                                        <div className="main-top-label">地图：</div>
+                                        <Select placeholder="请选择地图"
+                                                onChange={mapChange}
+                                                className="select-left" defaultValue={undefined}>
+                                            <Option value={'Town01'}>Town01</Option>
+                                            <Option value={'Town02'}>Town02</Option>
+                                            <Option value={'Town03'}>Town03</Option>
+                                            <Option value={'Town04'}>Town04</Option>
+                                            <Option value={'Town05'}>Town05</Option>
+                                        </Select>
+                                    </div>
 
-                            <div className="main-top-right">
-                                <button className="submit" onClick={submit}>
-                                    {
-                                        operateStatus ? '停止' : '运行'
+                                    <div className="main-top-right">
+                                        <button className="submit" onClick={submit}>
+                                            {
+                                                operateStatus ? '停止' : '运行'
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="main-code">
+                                    {/*<Select placeholder="快速添加"*/}
+                                    {/*        onChange={objectChange}*/}
+                                    {/*        className="select-right" defaultValue={undefined}>*/}
+                                    {/*    <Option value={1}>地图</Option>*/}
+                                    {/*    <Option value={2}>控制车辆</Option>*/}
+                                    {/*    <Option value={3}>NPC车辆</Option>*/}
+                                    {/*    <Option value={4}>行人</Option>*/}
+                                    {/*    <Option value={5}>障碍物</Option>*/}
+                                    {/*</Select>*/}
+                                    <CodeMirror
+                                        value={code}
+                                        onBlur={handleCodeBlur}
+                                        ref={codeMirror}
+                                        options={{
+                                            theme: 'base16-dark',
+                                            mode: 'jsx',
+                                            lineWrapping: true,
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </TabPane>
+                        <TabPane tab="地图俯视" key="2">
+                                <div className="main-item">
+                                    <div className="item-inner">
+                                        {(log && (mapName || operateStatus)) ? <LogViewer
+                                            onClick={() => {
+                                                setMapVisible(true)
+                                            }}
+                                            log={log}
+                                            showMap={false}
+                                            car={CAR}
+                                            xvizStyles={XVIZ_STYLE}
+                                            showTooltip={true}
+                                            viewMode={VIEW_MODE["TOP_DOWN"]}
+                                            viewOffset={VIEW_OFFSET}
+                                            viewState={VIEW_STATE}
+                                            customLayers={customLayers}
+                                        /> : <i className="iconfont iconpic"/>}
+                                    </div>
+                                </div>
+                        </TabPane>
+                        <TabPane tab="车辆前角" key="3">
+                            <div className="main-item">
+                                <div className="item-inner">
+                                    {(operateStatus && log)
+                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
+                                        : <i className="iconfont iconpic"/>
                                     }
-                                </button>
+                                </div>
                             </div>
-                        </div>
-                        <div className="main-code">
-                            {/*<Select placeholder="快速添加"*/}
-                            {/*        onChange={objectChange}*/}
-                            {/*        className="select-right" defaultValue={undefined}>*/}
-                            {/*    <Option value={1}>地图</Option>*/}
-                            {/*    <Option value={2}>控制车辆</Option>*/}
-                            {/*    <Option value={3}>NPC车辆</Option>*/}
-                            {/*    <Option value={4}>行人</Option>*/}
-                            {/*    <Option value={5}>障碍物</Option>*/}
-                            {/*</Select>*/}
-                            <CodeMirror
-                                value={code}
-                                onBlur={handleCodeBlur}
-                                ref={codeMirror}
-                                options={{
-                                    theme: 'base16-dark',
-                                    mode: 'jsx',
-                                    lineWrapping: true,
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <div className="main-right">
-                        <div className="main-right-item">
-                            <div className="item-inner">
-                                {(log && (mapName || operateStatus)) ? <LogViewer
-                                    onClick={() => {
-                                        setMapVisible(true)
-                                    }}
-                                    log={log}
-                                    showMap={false}
-                                    car={CAR}
-                                    xvizStyles={XVIZ_STYLE}
-                                    showTooltip={true}
-                                    viewMode={VIEW_MODE["TOP_DOWN"]}
-                                    viewOffset={VIEW_OFFSET}
-                                    viewState={VIEW_STATE}
-                                    customLayers={customLayers}
-                                /> : <i className="iconfont iconpic"/>}
+                        </TabPane>
+
+                        <TabPane tab="全局视角" key="4">
+                            <div className="main-item">
+                                <div className="item-inner item-view">
+                                    {(operateStatus && log)
+                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
+                                        : <i className="iconfont iconpic"/>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <div className="main-right-item">
-                            <div className="item-inner">
-                                {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
-                                    : <i className="iconfont iconpic"/>
-                                }
-                            </div>
-                        </div>
-                        <div className="main-right-item">
-                            <div className="item-inner">
-                                {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
-                                    : <i className="iconfont iconpic"/>
-                                }
-                            </div>
-                        </div>
-                    </div>
+                        </TabPane>
+                    </Tabs>
                 </div>
             </Spin>
             <ObstacleModal

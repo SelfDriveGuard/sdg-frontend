@@ -31,7 +31,7 @@ const Header = () => {
     return (
         <div className="header">
             <div className="header-inner">
-                <div>自动驾驶模拟测试平台</div>
+                <div>自动驾驶模拟测试云平台</div>
                 <div className="header-btn-group">
                     <button className="header-purchase" onClick={handlePurchase}>购买
                     </button>
