@@ -16,12 +16,13 @@ import {
     XVIZLiveLoader,
     VIEW_MODE,
 } from "streetscape.gl";
-import {XVIZ_STYLE, CAR, VIEW_OFFSET, VIEW_STATE} from "../constants";
+import {XVIZ_STYLE, CAR} from "../constants";
 
 import IndexContext from "../context";
 import {myServerApi} from "../api";
+import {getDirection} from '../utils';
 
-const { TabPane } = Tabs;
+const {TabPane} = Tabs;
 let WS_IP = '';
 
 const {Option} = Select;
@@ -30,9 +31,18 @@ let mapLayer, mapLayerBig;
 let index = 0;
 
 const outputLog = [];
+
+const myComponentProps = {
+    video: {
+        height: 800,
+        width: 1200,
+    }
+};
+
 const Main = () => {
     const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
+    const [tabVal, setTabVal] = useState('1');
     const [obstacleVisible, setObstacleVisible] = useState(false);
     const [egoVisible, setEgoVisible] = useState(false);
     const [mapVisible, setMapVisible] = useState(false);
@@ -44,6 +54,34 @@ const Main = () => {
     const [customLayers, setCustomLayers] = useState([]);
     const [bigLayers, setBigLayers] = useState([]);
     const [hoverLog, setHoverLog] = useState({});
+
+    // useEffect(() => {
+    //     return () => {
+    //         if(ws) {
+    //             ws.close();
+    //             ws = null;
+    //         }
+    //         if(log) {
+    //             carlaLog.close();
+    //             carlaLog = null;
+    //             setLog(carlaLog);
+    //         }
+    //     }
+    // }, [log]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (tabVal !== '4' || !operateStatus) return;
+            const keyMap = ['w', 'a', 's', 'd', 'q', 'e'];
+            if (keyMap.indexOf(e.key) === -1) return;
+            ws.send(JSON.stringify({
+                cmd: "move",
+                code: `key_${e.key}`,
+            }));
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [tabVal, operateStatus]);
 
     useEffect(() => {
         if (loginStatus) {
@@ -79,14 +117,16 @@ const Main = () => {
     };
 
     const tabCallback = (val) => {
-        if(val === "4" && operateStatus) {
+        setTabVal(val);
+        if (val === "3" && operateStatus) {
             setTimeout(() => {
                 const wrapper = document.querySelectorAll('.item-view')[0];
                 const select = wrapper.querySelector('select');
-                const option = wrapper.querySelectorAll('option')[1];
+                let option = wrapper.querySelectorAll('option');
+                option = option[option.length - 1];
                 select.value = option.innerText;
                 const evt = document.createEvent("Events");
-                evt.initEvent('change',true,true);
+                evt.initEvent('change', true, true);
                 select.dispatchEvent(evt);
             }, 1000);
         }
@@ -210,7 +250,7 @@ const Main = () => {
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            const { state, msg, cmd } = data;
+            const {state, msg, cmd} = data;
             if (cmd && cmd !== 'ASSERT') {
                 outputLog.push({cmd, msg});
                 dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
@@ -218,7 +258,7 @@ const Main = () => {
             if (cmd === 'READY') dispatch({type: 'SET_LOADING', loading: false});
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
-                if(cmd === 'DRIVING') {
+                if (cmd === 'DRIVING') {
 
                 }
             } else if (state === 'notRunning') {
@@ -302,6 +342,28 @@ const Main = () => {
         });
     };
 
+    const handleMousedown = (e) => {
+        if (!operateStatus) return;
+        e.preventDefault();
+        let startX = e.pageX;
+        let startY = e.pageY;
+        document.onmouseup = (event) => {
+            let endX = event.pageX;
+            let endY = event.pageY;
+            const direction = getDirection(startX, startY, endX, endY);
+            const obj = {
+                1: 'u', // 上
+                2: 'd', // 下
+                3: 'l', // 左
+                4: 'r', // 右
+            };
+            ws.send(JSON.stringify({
+                cmd: "move",
+                code: `drag_${obj[direction]}`,
+            }));
+        };
+    };
+
     return (
         <>
             <ProjectMenu getCode={getCode}/>
@@ -374,30 +436,30 @@ const Main = () => {
                             </div>
                         </TabPane>
                         <TabPane tab="地图俯视" key="2">
-                                <div className="main-item">
-                                    <div className="item-inner">
-                                        {(log && (mapName || operateStatus)) ? <LogViewer
-                                            onClick={() => {
-                                                setMapVisible(true)
-                                            }}
-                                            log={log}
-                                            showMap={false}
-                                            car={CAR}
-                                            xvizStyles={XVIZ_STYLE}
-                                            showTooltip={true}
-                                            viewMode={VIEW_MODE["TOP_DOWN"]}
-                                            viewOffset={VIEW_OFFSET}
-                                            viewState={VIEW_STATE}
-                                            customLayers={customLayers}
-                                        /> : <i className="iconfont iconpic"/>}
-                                    </div>
+                            <div className="main-item">
+                                <div className="item-inner">
+                                    {(log && (mapName || operateStatus)) ? <LogViewer
+                                        onClick={() => {
+                                            // setMapVisible(true)
+                                        }}
+                                        log={log}
+                                        showMap={false}
+                                        car={CAR}
+                                        xvizStyles={XVIZ_STYLE}
+                                        showTooltip={true}
+                                        viewMode={VIEW_MODE["TOP_DOWN"]}
+                                        customLayers={customLayers}
+                                    /> : <i className="iconfont iconpic"/>}
                                 </div>
+                            </div>
                         </TabPane>
                         <TabPane tab="车辆前角" key="3">
                             <div className="main-item">
-                                <div className="item-inner">
+                                <div className="item-inner item-view">
                                     {(operateStatus && log)
-                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
+                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"
+                                                     componentProps={myComponentProps}
+                                        />
                                         : <i className="iconfont iconpic"/>
                                     }
                                 </div>
@@ -406,9 +468,11 @@ const Main = () => {
 
                         <TabPane tab="全局视角" key="4">
                             <div className="main-item">
-                                <div className="item-inner item-view">
+                                <div className="item-inner" onMouseDown={handleMousedown}>
                                     {(operateStatus && log)
-                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
+                                        ? <XVIZPanel log={log} name="Camera"
+                                                     className="camera-wrapper"
+                                                     componentProps={myComponentProps}/>
                                         : <i className="iconfont iconpic"/>
                                     }
                                 </div>
