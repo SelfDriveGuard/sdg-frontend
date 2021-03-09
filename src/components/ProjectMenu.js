@@ -131,7 +131,6 @@ const ProjectMenu = (props) => {
                     onSelect={handleTreeSelect}
                     showIcon
                     defaultExpandAll
-                    defaultSelectedKeys={['0-0-0']}
                     treeData={treeData}
                 />
             </div>

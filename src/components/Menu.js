@@ -5,10 +5,10 @@ const Menu = () => {
     return (
         <div className="menu">
             <NavLink exact to="/" className="menu-item" activeClassName="active">
-                <i className="iconfont icondocument"/>
+                <i className="iconfont iconxiangmu1"/>
             </NavLink>
             <NavLink exact to="/knowledge" className="menu-item" activeClassName="active">
-                <i className="iconfont icondocument"/>
+                <i className="iconfont iconchangjingku"/>
             </NavLink>
         </div>
     )

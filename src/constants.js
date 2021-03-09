@@ -73,24 +73,23 @@ export const XVIZ_STYLE = {
     "/lidar/points": [{ style: { point_color_mode: "DEFALUT", radius_pixels: 0.3, fill_color: "#D2D2D2"} }]
 };
 
-export const VIEW_OFFSET = {
-    bearing: 0,
-    x: -22.71118436257045,
-    y: 4.89164028565088
-};
-
-export const VIEW_STATE = {
-    altitude: 1.5,
-    bearing: 0,
-    height: 178,
-    latitude: 0,
-    longitude: 0,
-    maxPitch: 0,
-    maxZoom: 24,
-    minPitch: 0,
-    minZoom: 12,
-    pitch: 0,
-    transitionDuration: 0,
-    width: 268,
-    zoom: 15
-};
+// export const VIEW_OFFSET = {
+//     bearing: 0,
+//     x: -22.71118436257045,
+//     y: 4.89164028565088
+// };
+//
+// export const VIEW_STATE = {
+//     altitude: 1.5,
+//     bearing: 0,
+//     height: 178,
+//     latitude: 0,
+//     longitude: 0,
+//     maxPitch: 0,
+//     maxZoom: 24,
+//     minPitch: 0,
+//     minZoom: 12,
+//     pitch: 0,
+//     transitionDuration: 0,
+//     width: 268,
+// };

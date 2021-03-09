@@ -103,3 +103,11 @@ export function saveProjectApi(data) {
     });
 }
 
+// 知识库
+export function getExampleApi() {
+    return http({
+        url: '/example',
+        method: "GET",
+    });
+}
+
