@@ -3,9 +3,6 @@ import CodeMirror from '@uiw/react-codemirror';
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
 import {Select, Spin, message, Tabs} from 'antd';
-import ObstacleModal from "./ObstacleModal";
-import EgoModal from "./EgoModal";
-import MapModal from "./MapModal";
 import ProjectMenu from "./ProjectMenu";
 
 import {GeoJsonLayer} from "@deck.gl/layers";
@@ -27,7 +24,7 @@ let WS_IP = '';
 
 const {Option} = Select;
 let carlaLog, ws;
-let mapLayer, mapLayerBig;
+let mapLayer;
 let index = 0;
 
 const outputLog = [];
@@ -43,31 +40,13 @@ const Main = () => {
     const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
     const [tabVal, setTabVal] = useState('1');
-    const [obstacleVisible, setObstacleVisible] = useState(false);
-    const [egoVisible, setEgoVisible] = useState(false);
-    const [mapVisible, setMapVisible] = useState(false);
 
     const [mapName, setMapName] = useState('');
     const [lang, setLang] = useState('scenest');
 
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
-    const [bigLayers, setBigLayers] = useState([]);
     const [hoverLog, setHoverLog] = useState({});
-
-    // useEffect(() => {
-    //     return () => {
-    //         if(ws) {
-    //             ws.close();
-    //             ws = null;
-    //         }
-    //         if(log) {
-    //             carlaLog.close();
-    //             carlaLog = null;
-    //             setLog(carlaLog);
-    //         }
-    //     }
-    // }, [log]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -167,34 +146,12 @@ const Main = () => {
                 mapLayer = new GeoJsonLayer({
                     ...config,
                     id: `carla_map${index}`,
-                });
-                mapLayerBig = new GeoJsonLayer({
-                    ...config,
-                    id: `carla_map_big${index}`,
                     pickable: true,
                     onClick: info => _onLayerHover(info),
                     onHover: info => _onLayerHover(info)
                 });
-                // textLayer = new TextLayer({
-                //     id: `text-layer${index}`,
-                //     data: metadata.map.features,
-                //     billboard: false,
-                //     fontFamily: 'sans-serif',
-                //     sizeUnits: 'meters',
-                //     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-                //     coordinateOrigin: [0, 0, 0],
-                //     getPosition: d => d.geometry.coordinates[1],
-                //     getText: d => d.properties.name,
-                //     getColor: [255, 255, 0, 255],
-                //     getSize: 0.3,
-                //     getAngle: 0,
-                //     getTextAnchor: 'middle',
-                //     getAlignmentBaseline: 'center',
-                // });
                 index += 1;
                 setCustomLayers([mapLayer]);
-                // setBigLayers([mapLayerBig, textLayer]);
-                setBigLayers([mapLayerBig]);
             }
         })
             .on("error", console.error)
@@ -204,14 +161,6 @@ const Main = () => {
                 console.log('finish');
             })
             .connect();
-    };
-
-    const objectChange = (val) => {
-        if (val === 2) {
-            setEgoVisible(true);
-        } else if (val === 5) {
-            setObstacleVisible(true);
-        }
     };
 
     const langChange = (val) => {
@@ -326,7 +275,6 @@ const Main = () => {
         outputLog.push({cmd: '', msg: '正在启动...'});
         dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         setCustomLayers([]);
-        setBigLayers([]);
         handleSocket();
         setTimeout(() => {
             linkSocket('', map_name, true);
@@ -413,15 +361,6 @@ const Main = () => {
                                     </div>
                                 </div>
                                 <div className="main-code">
-                                    {/*<Select placeholder="快速添加"*/}
-                                    {/*        onChange={objectChange}*/}
-                                    {/*        className="select-right" defaultValue={undefined}>*/}
-                                    {/*    <Option value={1}>地图</Option>*/}
-                                    {/*    <Option value={2}>控制车辆</Option>*/}
-                                    {/*    <Option value={3}>NPC车辆</Option>*/}
-                                    {/*    <Option value={4}>行人</Option>*/}
-                                    {/*    <Option value={5}>障碍物</Option>*/}
-                                    {/*</Select>*/}
                                     <CodeMirror
                                         value={code}
                                         onBlur={handleCodeBlur}
@@ -439,17 +378,30 @@ const Main = () => {
                             <div className="main-item">
                                 <div className="item-inner">
                                     {(log && (mapName || operateStatus)) ? <LogViewer
-                                        onClick={() => {
-                                            // setMapVisible(true)
-                                        }}
                                         log={log}
                                         showMap={false}
                                         car={CAR}
                                         xvizStyles={XVIZ_STYLE}
-                                        showTooltip={true}
+                                        showTooltip={!hoverLog.showHover}
                                         viewMode={VIEW_MODE["TOP_DOWN"]}
                                         customLayers={customLayers}
-                                    /> : <i className="iconfont iconpic"/>}
+                                    />
+
+                                    : <i className="iconfont iconpic"/>}
+                                    {hoverLog.showHover ? (
+                                        <div style={{
+
+                                            left: hoverLog.hoverObject.x,
+                                            top: hoverLog.hoverObject.y
+                                        }} className="map-hover-modal">
+                                            <p><span className="label">roadId:</span> {hoverLog.hoverObject.roadId}</p>
+                                            <p><span className="label">laneId:</span> {hoverLog.hoverObject.laneId}</p>
+                                            <p><span className="label">positionX:</span> {hoverLog.hoverObject.positionX}</p>
+                                            <p><span className="label">positionY:</span> {-hoverLog.hoverObject.positionY}</p>
+                                        </div>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </div>
                             </div>
                         </TabPane>
@@ -481,24 +433,6 @@ const Main = () => {
                     </Tabs>
                 </div>
             </Spin>
-            <ObstacleModal
-                visible={obstacleVisible} cancel={() => {
-                setObstacleVisible(false)
-            }}
-            />
-            <EgoModal
-                visible={egoVisible} cancel={() => {
-                setEgoVisible(false)
-            }}
-            />
-            <MapModal
-                layers={bigLayers}
-                log={log}
-                hoverLog={hoverLog}
-                visible={mapVisible} cancel={() => {
-                setMapVisible(false)
-            }}
-            />
         </>
     )
 };
