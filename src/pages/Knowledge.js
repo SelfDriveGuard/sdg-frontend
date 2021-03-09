@@ -1,17 +1,20 @@
 import React, {useEffect, useRef, useState} from "react";
 import '../static/style/knowledge.less';
 import {getExampleApi} from '../api';
-import {message, Tree} from "antd";
+import {message, Select, Tree} from "antd";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import CodeMirror from "@uiw/react-codemirror";
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
+
+const {Option} = Select;
 
 const Knowledge = () => {
     const [treeData, setTreeData] = useState([]);
     const [selectNode, setSelectNode] = useState({
         key :'0-0-0',
     });
+    const [lang, setLang] = useState('scenest');
     const codeMirror = useRef();
 
     useEffect(() => {
@@ -25,6 +28,11 @@ const Knowledge = () => {
     const handleCopy = () => {
         message.success('复制成功');
     };
+
+    const langChange = (val) => {
+        setLang(val);
+    };
+
     const getTreeData = async () => {
         const {data} = await getExampleApi();
         data.forEach((item) => {
@@ -48,6 +56,7 @@ const Knowledge = () => {
         setTreeData(data);
         setSelectNode(data[0].children[0]);
     };
+
     return (
         <div className="knowledge">
             <div className="knowledge-menu">
@@ -62,7 +71,18 @@ const Knowledge = () => {
             </div>
             <div className="knowledge-main">
                 <div className="main-top">
-                    <div className="knowledge-title">{selectNode.name}</div>
+                    <div className="main-top-left">
+                        <div className="knowledge-title">{selectNode.name}</div>
+                        <div className="main-top-label">语言：</div>
+                        <Select placeholder="请选择语言"
+                                onChange={langChange}
+                                className="select-left" defaultValue={'scenest'}>
+                            <Option value={'scenest'}># scenest</Option>
+                            <Option value={'scenic'}># scenic</Option>
+                            <Option value={'scenario'}># scenario</Option>
+                        </Select>
+                    </div>
+
                     <CopyToClipboard onCopy={handleCopy}
                                      text={selectNode.code}>
                         <div className="btn"><i className="iconfont icondocument"/>复制</div>
