@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-RUN useradd -ms /bin/bash carla
+RUN useradd -ms /bin/bash sdg
 
 USER root
 
@@ -24,32 +24,19 @@ RUN echo "latest"
 RUN apt-get update && \
   apt-get install -y tcptraceroute bc net-tools
 
-RUN mkdir /root/.ssh/
-
-ADD id_rsa /root/.ssh/id_rsa
-
-RUN chmod 600 /root/.ssh/* && \
-  touch /root/.ssh/known_hosts && \
-  ssh-keyscan codeup.aliyun.com >> /root/.ssh/known_hosts
-
-RUN cd /home/carla/ && \
-  git clone git@codeup.aliyun.com:5f3f374f6207a1a8b17f933f/ADTest/ADTest_frontend.git
-
-RUN cd /home/carla/ADTest_frontend/ && \
+# clone source code
+RUN cd /home/sdg/ && \
+  git clone git://github.com/SelfDriveGuard/sdg-frontend.git && \
+  cd /home/sdg/sdg-frontend/ && \
   yarn --version && \
-  yarn config set registry 'https://registry.npm.taobao.org' && \
-  yarn config get registry && \
   yarn install
 
-EXPOSE 8090
-EXPOSE 8091
-EXPOSE 8092
-EXPOSE 8093
+EXPOSE 8090-8093
 
-USER carla
+USER sdg
 
-COPY run.sh /home/carla/
-WORKDIR /home/carla
+COPY run.sh /home/sdg/
+WORKDIR /home/sdg
 
 CMD ["./run.sh"]
 

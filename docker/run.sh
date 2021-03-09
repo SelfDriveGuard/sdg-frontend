@@ -8,11 +8,11 @@ trap cleanup SIGINT
 trap cleanup SIGTERM
 trap cleanup KILL
 
-cd /home/carla/ADTest_frontend
+cd /home/sdg/sdg-frontend
 
-echo "Launching ADTest_frontend."
+echo "Launching sdg-frontend."
 yarn start &
 sleep 5
 
-echo "ADTest_frontend launched."
+echo "sdg-frontend launched."
 sleep infinity

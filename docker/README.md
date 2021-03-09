@@ -1,6 +1,6 @@
-# ADTest_frontend
-这是ADTest_frontend的镜像文件。
-其中，Dockerfile用于docker build；由于git代码托管在云效私人仓库，需要权限pull，因此把id_rsa私钥复制到容器内。
+# sdg-frontend
+这是sdg-frontend的镜像文件。
+其中，Dockerfile用于docker build。
 
 #### Build From Docker
 
@@ -8,20 +8,20 @@ Run following command to pull this image.
 
 ```bash
 # pull the image based on version
-sudo docker pull registry.cn-beijing.aliyuncs.com/ad-test/adtest_frontend:[镜像版本号]
+sudo docker pull selfdriveguard/sdg-frontend:[version tag]
 ```
 
 #### How to run it with docker
 
-1. Run ADTest_backend
+1. Run sdg-frontend
 
-2. Run ADTest_frontend
+2. Run sdg-frontend
 
    ```sh
    # On Linux system
-   docker run -it --network="host" registry.cn-beijing.aliyuncs.com/ad-test/adtest_frontend:[镜像版本号]
+   docker run -it --network="host" selfdriveguard/sdg-frontend:[version tag]
    
    # On Windows/MacOS system
-   docker run -it -p 8090-8093:8090-8093 registry.cn-beijing.aliyuncs.com/ad-test/adtest_frontend:[镜像版本号]
+   docker run -it -p 8090-8093:8090-8093 selfdriveguard/sdg-frontend:[version tag]
    ```
 
