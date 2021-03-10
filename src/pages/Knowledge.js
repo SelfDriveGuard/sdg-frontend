@@ -11,6 +11,7 @@ import 'codemirror/theme/base16-dark.css';
 const {Option} = Select;
 
 let all = [];
+
 const Knowledge = () => {
     const [treeData, setTreeData] = useState([]);
     const [selectNode, setSelectNode] = useState({
@@ -25,6 +26,7 @@ const Knowledge = () => {
             renderTreeData(data);
         })()
     }, []);
+
 
     const handleTreeSelect = (key, info) => {
         setSelectNode(info.node);
@@ -42,6 +44,7 @@ const Knowledge = () => {
             })
         });
         renderTreeData(arr);
+
     };
 
     const getTreeData = async () => {
@@ -94,6 +97,7 @@ const Knowledge = () => {
                 <div className="main-top">
                     <div className="main-top-left">
                         <div className="knowledge-title">{selectNode.name && selectNode.name.split('.')[0]}</div>
+                        <div className="knowledge-title">{selectNode.name}</div>
                         <div className="main-top-label">语言：</div>
                         <Select placeholder="请选择语言"
                                 onChange={langChange}
