@@ -3,12 +3,14 @@ import '../static/style/knowledge.less';
 import {getExampleApi} from '../api';
 import {message, Select, Tree} from "antd";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {arrDeepCopy} from '../utils';
 import CodeMirror from "@uiw/react-codemirror";
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
 
 const {Option} = Select;
 
+let all = [];
 const Knowledge = () => {
     const [treeData, setTreeData] = useState([]);
     const [selectNode, setSelectNode] = useState({
@@ -19,9 +21,11 @@ const Knowledge = () => {
 
     useEffect(() => {
         (async () => {
-            await getTreeData();
+            const data = await getTreeData();
+            renderTreeData(data);
         })()
     }, []);
+
     const handleTreeSelect = (key, info) => {
         setSelectNode(info.node);
     };
@@ -31,10 +35,27 @@ const Knowledge = () => {
 
     const langChange = (val) => {
         setLang(val);
+        const arr = arrDeepCopy(all);
+        arr.forEach((item) => {
+            return item.children = item.children.filter((inner) => {
+                return inner.name.indexOf(val) > -1
+            })
+        });
+        renderTreeData(arr);
     };
 
     const getTreeData = async () => {
         const {data} = await getExampleApi();
+        all = arrDeepCopy(data);
+        data.forEach((item) => {
+            item.children = item.children.filter((inner) => {
+                return inner.name.indexOf(lang) > -1
+            })
+        });
+        return data;
+    };
+
+    const renderTreeData = (data) => {
         data.forEach((item) => {
             item.title =
                 <div className="father-tree">
@@ -72,14 +93,13 @@ const Knowledge = () => {
             <div className="knowledge-main">
                 <div className="main-top">
                     <div className="main-top-left">
-                        <div className="knowledge-title">{selectNode.name}</div>
+                        <div className="knowledge-title">{selectNode.name && selectNode.name.split('.')[0]}</div>
                         <div className="main-top-label">语言：</div>
                         <Select placeholder="请选择语言"
                                 onChange={langChange}
                                 className="select-left" defaultValue={'scenest'}>
                             <Option value={'scenest'}># scenest</Option>
                             <Option value={'scenic'}># scenic</Option>
-                            <Option value={'scenario'}># scenario</Option>
                         </Select>
                     </div>
 

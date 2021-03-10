@@ -26,3 +26,9 @@ export function getDirection(startx, starty, endx, endy) {
 function getAngle(angx, angy) {
     return Math.atan2(angy, angx) * 180 / Math.PI;
 }
+
+export function arrDeepCopy(source){
+    let sourceCopy = [];
+    for (let item in source) sourceCopy[item] = typeof source[item] === 'object' ? arrDeepCopy(source[item]) : source[item];
+    return sourceCopy;
+}
