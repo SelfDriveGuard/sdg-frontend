@@ -97,7 +97,6 @@ const Knowledge = () => {
                 <div className="main-top">
                     <div className="main-top-left">
                         <div className="knowledge-title">{selectNode.name && selectNode.name.split('.')[0]}</div>
-                        <div className="knowledge-title">{selectNode.name}</div>
                         <div className="main-top-label">语言：</div>
                         <Select placeholder="请选择语言"
                                 onChange={langChange}
