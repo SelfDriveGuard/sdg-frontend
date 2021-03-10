@@ -39,6 +39,7 @@ const myComponentProps = {
 const Main = () => {
     const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
+    const overallView = useRef();
     const [tabVal, setTabVal] = useState('1');
 
     const [mapName, setMapName] = useState('');
@@ -295,7 +296,8 @@ const Main = () => {
         e.preventDefault();
         let startX = e.pageX;
         let startY = e.pageY;
-        document.onmouseup = (event) => {
+        overallView.current.onmouseup = (event) => {
+            if (!operateStatus) return;
             let endX = event.pageX;
             let endY = event.pageY;
             const direction = getDirection(startX, startY, endX, endY);
@@ -420,7 +422,7 @@ const Main = () => {
 
                         <TabPane tab="全局视角" key="4">
                             <div className="main-item">
-                                <div className="item-inner" onMouseDown={handleMousedown}>
+                                <div className="item-inner" ref={overallView} onMouseDown={handleMousedown}>
                                     {(operateStatus && log)
                                         ? <XVIZPanel log={log} name="Camera"
                                                      className="camera-wrapper"
