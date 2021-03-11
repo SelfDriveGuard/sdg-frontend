@@ -104,10 +104,11 @@ export function saveProjectApi(data) {
 }
 
 // 知识库
-export function getExampleApi() {
+export function getExampleApi(params) {
     return http({
         url: '/example',
         method: "GET",
+        params,
     });
 }
 

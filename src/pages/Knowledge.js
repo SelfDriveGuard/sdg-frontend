@@ -3,59 +3,74 @@ import '../static/style/knowledge.less';
 import {getExampleApi} from '../api';
 import {message, Select, Tree} from "antd";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import {arrDeepCopy} from '../utils';
 import CodeMirror from "@uiw/react-codemirror";
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
 
 const {Option} = Select;
-
-let all = [];
+const tree = [{
+    "name": "C-NCAP",
+    "isLeaf": false,
+    "key": "0-0",
+    "children": [{
+        "name": "人行通道",
+        "key": "0-0-1",
+        "isLeaf": true,
+    }, {
+        "name": "十字路口",
+        "key": "0-0-2",
+        "isLeaf": true,
+    }, {
+        "name": "跟车",
+        "key": "0-0-3",
+        "isLeaf": true,
+    }, {
+        "name": "限速",
+        "key": "0-0-4",
+        "isLeaf": true,
+    },]
+}, {
+    "folderName": "E-NCAP",
+    "name": "E-NCAP",
+    "isLeaf": false,
+    "key": "0-1",
+    "children": []
+}];
 
 const Knowledge = () => {
     const [treeData, setTreeData] = useState([]);
     const [selectNode, setSelectNode] = useState({
-        key :'0-0-0',
+        key: '0-0-0',
     });
     const [lang, setLang] = useState('scenest');
+    const [code, setCode] = useState('');
     const codeMirror = useRef();
 
     useEffect(() => {
         (async () => {
-            const data = await getTreeData();
-            renderTreeData(data);
+            renderTreeData(tree);
+            await getCode('人行通道' ,lang);
         })()
     }, []);
 
-
-    const handleTreeSelect = (key, info) => {
+    const handleTreeSelect = async (key, info) => {
         setSelectNode(info.node);
+        await getCode(info.node.name , lang);
     };
     const handleCopy = () => {
         message.success('复制成功');
     };
 
-    const langChange = (val) => {
+    const langChange = async (val) => {
         setLang(val);
-        const arr = arrDeepCopy(all);
-        arr.forEach((item) => {
-            return item.children = item.children.filter((inner) => {
-                return inner.name.indexOf(val) > -1
-            })
-        });
-        renderTreeData(arr);
-
+        await getCode(selectNode.name , val);
     };
 
-    const getTreeData = async () => {
-        const {data} = await getExampleApi();
-        all = arrDeepCopy(data);
-        data.forEach((item) => {
-            item.children = item.children.filter((inner) => {
-                return inner.name.indexOf(lang) > -1
-            })
+    const getCode = async (name, lang) => {
+        const {data} = await getExampleApi({
+            name: `${name}.${lang}`
         });
-        return data;
+        setCode(data);
     };
 
     const renderTreeData = (data) => {
@@ -107,13 +122,13 @@ const Knowledge = () => {
                     </div>
 
                     <CopyToClipboard onCopy={handleCopy}
-                                     text={selectNode.code}>
+                                     text={code}>
                         <div className="btn"><i className="iconfont icondocument"/>复制</div>
                     </CopyToClipboard>
                 </div>
                 <div className="main-code">
                     <CodeMirror
-                        value={selectNode.code}
+                        value={code}
                         ref={codeMirror}
                         options={{
                             theme: 'base16-dark',
