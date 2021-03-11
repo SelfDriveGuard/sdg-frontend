@@ -29,6 +29,13 @@ let mapLayer, mapLayerBig;
 let index = 0;
 
 const outputLog = [];
+
+const myComponentProps = {
+    video: {
+        height: 225,
+        width: 300,
+    }
+};
 const Main = () => {
     const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
@@ -204,13 +211,22 @@ const Main = () => {
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
                 if(cmd === 'DRIVING') {
-                    const wrapper = document.querySelectorAll('.item-inner')[2];
-                    const select = wrapper.querySelector('select');
-                    const option = wrapper.querySelectorAll('option')[1];
+                    const wrapper = document.querySelectorAll('.item-inner');
+                    const wrapper1 = wrapper[1];
+                    const wrapper2 = wrapper[2];
+                    const select = wrapper1.querySelector('select');
+                    const option = wrapper1.querySelectorAll('option')[2];
                     select.value = option.innerText;
                     const evt = document.createEvent("Events");
                     evt.initEvent('change',true,true);
                     select.dispatchEvent(evt);
+
+                    const select1 = wrapper2.querySelector('select');
+                    const option1 = wrapper2.querySelectorAll('option')[1];
+                    select1.value = option1.innerText;
+                    const evt1 = document.createEvent("Events");
+                    evt1.initEvent('change',true,true);
+                    select1.dispatchEvent(evt1);
                 }
             } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
@@ -382,7 +398,7 @@ const Main = () => {
                         <div className="main-right-item">
                             <div className="item-inner">
                                 {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
+                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper" componentProps={myComponentProps}/>
                                     : <i className="iconfont iconpic"/>
                                 }
                             </div>
@@ -390,7 +406,7 @@ const Main = () => {
                         <div className="main-right-item">
                             <div className="item-inner">
                                 {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"/>
+                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper" componentProps={myComponentProps}/>
                                     : <i className="iconfont iconpic"/>
                                 }
                             </div>
