@@ -106,7 +106,7 @@ const Main = () => {
             option.forEach((item) => {
                 arr.push(item.value.split('/')[3]);
             });
-            arr.sort();
+            arr.sort((a, b) => a - b);
             option = tabVal === '3' ? arr[arr.length - 1] :arr[0];
             select.value = `/camera/rgb/${option}`;
             const evt = document.createEvent("Events");
