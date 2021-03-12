@@ -96,21 +96,28 @@ const Main = () => {
         }
     };
 
+    const changeOption = (selector, tabVal) => {
+        setTimeout(() => {
+            const wrapper = document.querySelector(selector);
+            const select = wrapper.querySelector('select');
+            if(!select) return;
+            let option = wrapper.querySelectorAll('option');
+            const arr = [];
+            option.forEach((item) => {
+                arr.push(item.value.split('/')[3]);
+            });
+            arr.sort();
+            option = tabVal === '3' ? arr[arr.length - 1] :arr[0];
+            select.value = `/camera/rgb/${option}`;
+            const evt = document.createEvent("Events");
+            evt.initEvent('change', true, true);
+            select.dispatchEvent(evt);
+        }, 300);
+    };
+
     const tabCallback = (val) => {
         setTabVal(val);
-        if (val === "3" && operateStatus) {
-            setTimeout(() => {
-                const wrapper = document.querySelectorAll('.item-view')[0];
-                const select = wrapper.querySelector('select');
-                if(!select) return;
-                let option = wrapper.querySelectorAll('option');
-                option = option[option.length - 1];
-                select.value = option.innerText;
-                const evt = document.createEvent("Events");
-                evt.initEvent('change', true, true);
-                select.dispatchEvent(evt);
-            }, 300);
-        }
+        if(operateStatus && (val === "3" || val === '4')) changeOption(`.item-view${val}`, val);
     };
 
     const handleSocket = () => {
@@ -209,6 +216,7 @@ const Main = () => {
             if (cmd === 'READY') {
                 dispatch({type: 'SET_LOADING', loading: false});
                 setTabVal("4");
+                changeOption(`.item-view4`, "4");
             }
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
@@ -410,7 +418,7 @@ const Main = () => {
                         </TabPane>
                         <TabPane tab="车辆前角" key="3">
                             <div className="main-item">
-                                <div className="item-inner item-view">
+                                <div className="item-inner item-view3">
                                     {(log)
                                         ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"
                                                      componentProps={myComponentProps}
@@ -422,7 +430,7 @@ const Main = () => {
                         </TabPane>
                         <TabPane tab="全局视角" key="4">
                             <div className="main-item">
-                                <div className="item-inner" ref={overallView} onMouseDown={handleMousedown}>
+                                <div className="item-inner item-view4" ref={overallView} onMouseDown={handleMousedown}>
                                     {(log)
                                         ? <XVIZPanel log={log} name="Camera"
                                                      className="camera-wrapper"
