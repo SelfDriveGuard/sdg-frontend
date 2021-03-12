@@ -102,13 +102,14 @@ const Main = () => {
             setTimeout(() => {
                 const wrapper = document.querySelectorAll('.item-view')[0];
                 const select = wrapper.querySelector('select');
+                if(!select) return;
                 let option = wrapper.querySelectorAll('option');
                 option = option[option.length - 1];
                 select.value = option.innerText;
                 const evt = document.createEvent("Events");
                 evt.initEvent('change', true, true);
                 select.dispatchEvent(evt);
-            }, 1000);
+            }, 300);
         }
     };
 
@@ -205,12 +206,12 @@ const Main = () => {
                 outputLog.push({cmd, msg});
                 dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
             }
-            if (cmd === 'READY') dispatch({type: 'SET_LOADING', loading: false});
+            if (cmd === 'READY') {
+                dispatch({type: 'SET_LOADING', loading: false});
+                setTabVal("4");
+            }
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
-                if (cmd === 'DRIVING') {
-
-                }
             } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
                 if (cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
@@ -319,7 +320,7 @@ const Main = () => {
             <ProjectMenu getCode={getCode}/>
             <Spin spinning={loading} size="large">
                 <div className="main">
-                    <Tabs defaultActiveKey="1" onChange={tabCallback}>
+                    <Tabs defaultActiveKey="1" onChange={tabCallback} activeKey={tabVal}>
                         <TabPane tab="代码" key="1">
                             <div className="main-tab1">
                                 <div className="main-top">
@@ -410,7 +411,7 @@ const Main = () => {
                         <TabPane tab="车辆前角" key="3">
                             <div className="main-item">
                                 <div className="item-inner item-view">
-                                    {(operateStatus && log)
+                                    {(log)
                                         ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"
                                                      componentProps={myComponentProps}
                                         />
@@ -419,11 +420,10 @@ const Main = () => {
                                 </div>
                             </div>
                         </TabPane>
-
                         <TabPane tab="全局视角" key="4">
                             <div className="main-item">
                                 <div className="item-inner" ref={overallView} onMouseDown={handleMousedown}>
-                                    {(operateStatus && log)
+                                    {(log)
                                         ? <XVIZPanel log={log} name="Camera"
                                                      className="camera-wrapper"
                                                      componentProps={myComponentProps}/>

@@ -74,18 +74,18 @@ const ProjectMenu = (props) => {
         data.forEach((item) => {
             item.title =
                 <div className="father-tree">
-                    <div>
+                    <div className="name-wrapper">
                         <i className="iconfont iconxiangmu"/>
-                        <span>{item.name}</span>
+                        <span className="name">{item.name}</span>
                     </div>
                     {dropDownFather}
                 </div>;
             item.children.forEach((innerItem) => {
                 innerItem.title =
                     <div className="child-tree">
-                        <div>
+                        <div className="name-wrapper">
                             <i className="iconfont icondocument"/>
-                            <span>{innerItem.name}</span>
+                            <span className="name">{innerItem.name}</span>
                         </div>
                         {dropDownChild}
                     </div>

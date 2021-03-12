@@ -49,7 +49,7 @@ const Knowledge = () => {
     useEffect(() => {
         (async () => {
             renderTreeData(tree);
-            await getCode('人行通道' ,lang);
+            await getCode('人行通道', lang);
         })()
     }, []);
 

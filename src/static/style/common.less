@@ -412,6 +412,17 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .name {
+    width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+  }
+  .name-wrapper {
+    display: flex;
+    align-items: baseline;
+  }
   .icondocument {
     margin-right: 4px;
   }
