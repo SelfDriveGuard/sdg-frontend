@@ -1,26 +1,30 @@
 import React, {useState, useEffect, useContext} from "react";
 import {Modal, Table} from 'antd';
 import IndexContext from "../context";
-const columns = [
-    {
-        title: 'IP',
-        dataIndex: 'ip',
-        key: 'ip',
-    },
-    {
-        title: '产品配置',
-        dataIndex: 'config',
-        key: 'config',
-        render: (text, record) => {
-           return <>{record.simulator} + {record.avSystem}</>
-        },
-    },
-];
+import {useI18n} from "use-i18n";
+
 
 const MyServer = (props) => {
     const {visible, cancel} = props;
     const [table, setTable] = useState([]);
     const {myServer} = useContext(IndexContext);
+    const t = useI18n();
+
+    const columns = [
+        {
+            title: 'IP',
+            dataIndex: 'ip',
+            key: 'ip',
+        },
+        {
+            title: t.projectConfig,
+            dataIndex: 'config',
+            key: 'config',
+            render: (text, record) => {
+                return <>{record.simulator} + {record.avSystem}</>
+            },
+        },
+    ];
 
     useEffect(() => {
         if(visible) {
@@ -38,7 +42,7 @@ const MyServer = (props) => {
             onCancel={cancelModal}
             footer={null}
             centered
-            title="我的服务器">
+            title={t.myServer}>
             <Table columns={columns} dataSource={table} pagination={false} className="server-table"/>
         </Modal>
     )

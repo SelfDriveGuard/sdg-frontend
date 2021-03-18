@@ -5,15 +5,18 @@ import RenameModal from "./RenameModal";
 import {getTreeApi, deleteProjectApi, saveProjectApi} from '../api';
 import IndexContext from "../context";
 import {baseUrl} from '../plugins/axios';
+import {useI18n} from "use-i18n";
 
 let currentNode;
 const ProjectMenu = (props) => {
     const {getCode} = props;
-    const {loginStatus, dispatch} = useContext(IndexContext);
+    const {userInfo, dispatch} = useContext(IndexContext);
     const [addVisible, setAddVisible] = useState(false);
     const [renameVisible, setRenameVisible] = useState(false);
     const [treeData, setTreeData] = useState([]);
     const [selectNode, setSelectNode] = useState({});
+
+    const t = useI18n();
     const handleRename = () => {
         setRenameVisible(true);
     };
@@ -22,7 +25,7 @@ const ProjectMenu = (props) => {
         await deleteProjectApi({
             filePath: currentNode.path,
         });
-        message.success('删除成功');
+        message.success(t.deleteSuccess);
         await getTreeData();
     };
 
@@ -32,7 +35,7 @@ const ProjectMenu = (props) => {
             filePath: currentNode.path,
             code,
         });
-        message.success('保存成功');
+        message.success(t.saveSuccess);
         await getTreeData();
     };
 
@@ -44,7 +47,7 @@ const ProjectMenu = (props) => {
         <Dropdown
             overlay={
                 <div className="tree-dropdown">
-                    <p onClick={handleRename}>重命名</p>
+                    <p onClick={handleRename}>{t.rename}</p>
                 </div>
             } placement="bottomCenter" trigger={['click']}>
             <i className="iconfont iconellipsis"/>
@@ -53,17 +56,17 @@ const ProjectMenu = (props) => {
     const dropDownChild = <Dropdown
         overlay={
             <div className="tree-dropdown">
-                <p onClick={handleRename}>重命名</p>
+                <p onClick={handleRename}>{t.rename}</p>
                 <Popconfirm
-                    title="确定要删除吗?"
+                    title={t.sureDelete}
                     onConfirm={handleDelete}
-                    okText="确定"
-                    cancelText="取消"
+                    okText={t.ok}
+                    cancelText={t.cancel}
                 >
-                    <p>删除</p>
+                    <p>{t.delete}</p>
                 </Popconfirm>
-                <p onClick={handleDownload}>下载</p>
-                <p onClick={handleSave}>保存</p>
+                <p onClick={handleDownload}>{t.download}</p>
+                <p onClick={handleSave}>{t.save}</p>
             </div>
         } placement="bottomCenter" trigger={['click']}>
         <i className="iconfont iconellipsis"/>
@@ -95,12 +98,12 @@ const ProjectMenu = (props) => {
     };
 
     useEffect(() => {
-        if (loginStatus) {
+        if (userInfo) {
             (async () => {
                 await getTreeData();
             })()
         }
-    }, [loginStatus]);
+    }, [userInfo]);
 
     const updateSuccess = async () => {
         await getTreeData();
@@ -117,9 +120,9 @@ const ProjectMenu = (props) => {
     return (
         <div className="main-menu">
             <div className="menu-top">
-                <span>项目管理</span>
+                <span>{t.projectManage}</span>
                 <i className="iconfont iconplus-circle" onClick={() => {
-                    if (!loginStatus) {
+                    if (!userInfo) {
                         dispatch({type: 'SET_LOGIN', status: true});
                         return;
                     }

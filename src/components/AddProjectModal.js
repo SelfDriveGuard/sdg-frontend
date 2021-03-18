@@ -1,11 +1,14 @@
 import React, {useState} from "react";
 import {Modal, Button, Input, message} from 'antd';
 import {addProjectApi} from '../api';
+import {useI18n} from "use-i18n";
 
 const AddProjectModal = (props) => {
     const {visible, cancel, updateSuccess} = props;
     const [project, setProject] = useState('');
     const [name, setName] = useState('');
+    const t = useI18n();
+
     const cancelModal = () => {
         setProject('');
         setName('');
@@ -16,7 +19,7 @@ const AddProjectModal = (props) => {
             name,
             project,
         });
-        message.success('创建成功');
+        message.success(t.createSuccess);
         updateSuccess();
         cancelModal();
     };
@@ -36,30 +39,22 @@ const AddProjectModal = (props) => {
             onCancel={cancelModal}
             footer={[
                 <Button key="submit" type="primary" onClick={submit}>
-                    确认
+                    {t.ok}
                 </Button>,
                 <Button key="back" onClick={cancelModal}>
-                    取消
+                    {t.cancel}
                 </Button>,
             ]}
             centered
-            title="添加项目">
-            {/*<Select placeholder="请选择或输入项目名称"*/}
-            {/*        onChange={projectChange}*/}
-            {/*        showSearch*/}
-            {/*        className="add-select" defaultValue={undefined}>*/}
-            {/*    {projects.map((item) => {*/}
-            {/*        return <Option value={item} key={item}>{item}</Option>*/}
-            {/*    })}*/}
-            {/*</Select>*/}
+            title={t.addTitle}>
             <Input className="add-select"
                    onChange={projectChange}
                    value={project}
-                   placeholder="请选择或输入项目名称"/>
+                   placeholder={t.folderPlaceHolder}/>
             <Input className="add-input"
                    value={name}
                    onChange={nameChange}
-                   placeholder="请输入文件名称"/>
+                   placeholder={t.filePlaceHolder}/>
         </Modal>
     )
 };

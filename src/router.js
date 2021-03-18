@@ -6,7 +6,6 @@ import Index from "./pages/Index";
 import Knowledge from "./pages/Knowledge";
 import IndexContext from "./context";
 import {defaultState, reducer} from './reducer';
-
 const AppRouter = () => {
     const [state, dispatch] = useReducer(reducer, defaultState);
     return (

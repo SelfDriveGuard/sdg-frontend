@@ -1,12 +1,15 @@
 import React, {useContext, useState} from "react";
 import {Modal, Input, message} from 'antd';
 import IndexContext from "../context";
-import {loginApi} from '../api/index';
+import {loginApi, meApi} from '../api/index';
+import {useI18n} from "use-i18n";
 
 const Login = () => {
     const {loginVisible, dispatch} = useContext(IndexContext);
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
+    const t = useI18n();
+
     const cancelModal = () => {
         setUserName('');
         setPassword('');
@@ -28,12 +31,13 @@ const Login = () => {
             password,
         });
         if(!code) {
-            message.error('用户名或密码错误');
+            message.error(t.loginFail);
             return;
         }
         cancelModal();
-        message.success('登录成功');
-        dispatch({type: 'SET_LOGIN_STATUS', status: true});
+        message.success(t.loginSuccess);
+        const {data} = await meApi();
+        dispatch({type: 'SET_USER_INFO', userInfo: data});
     };
     return (
         <Modal
@@ -43,12 +47,12 @@ const Login = () => {
             onCancel={cancelModal}
             footer={null}
             centered
-            title="账号登录">
-            <Input placeholder="请输入用户名" className="userName" onChange={changeUserName} value={userName}/>
-            <Input placeholder="请输入密码" className="password" type="password"
+            title={t.loginTitle}>
+            <Input placeholder={t.accountPlaceholder} className="userName" onChange={changeUserName} value={userName}/>
+            <Input placeholder={t.pwdPlaceholder} className="password" type="password"
                    onChange={changePassword} value={password}/>
-            <p className="login-tip" onClick={handleToRegister}>去注册</p>
-            <button className="login-btn" onClick={handleLogin}>登录</button>
+            <p className="login-tip" onClick={handleToRegister}>{t.goRegister}</p>
+            <button className="login-btn" onClick={handleLogin}>{t.login}</button>
         </Modal>
     )
 };

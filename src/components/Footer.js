@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import IndexContext from "../context";
+import {useI18n} from "use-i18n";
 
 let dragAble = false;
 let oldY = 0;
@@ -9,6 +10,9 @@ const Footer = () => {
     const [cont, setCont] = useState(Object);
 
     const [height, setHeight] = useState(38);
+
+    const t = useI18n();
+
     useEffect(() => {
         if (tab === 0) {
             setCont(outputMsg);
@@ -51,18 +55,15 @@ const Footer = () => {
                         <div className={`footer-tab ${tab === 0 ? 'active' : ''}`}
                              onClick={() => {
                                  tabChange(0)
-                             }}>Output信息
+                             }}>{t.output}
                         </div>
                         <div className={`footer-tab ${tab === 1 ? 'active' : ''}`}
                              onClick={() => {
                                  tabChange(1)
-                             }}>Assert关键点
+                             }}>{t.assert}
                         </div>
                     </div>
                     <div className="footer-right">
-                        {/*<button className="play-btn">*/}
-                        {/*    <i className="iconfont iconvideo"/>*/}
-                        {/*    视频回放</button>*/}
                         {height === 38 ?
                             <i className="iconfont iconarrow active" onClick={() => {handleFold(250)}}/> :
                             <i className="iconfont iconarrow" onClick={() => {handleFold(38)}}/>}
@@ -82,9 +83,9 @@ const Footer = () => {
                     </div> : cont && <div>{cont.map((item, index) => {
                         return <div key={index}>
                             {index + 1}
-                            <div>类型：{item.type}</div>
-                            <div>时间戳：{item.timestamp}</div>
-                            <div>描述：{item.description}</div>
+                            <div>{t.type}：{item.type}</div>
+                            <div>{t.timeStamp}：{item.timestamp}</div>
+                            <div>{t.desc}：{item.description}</div>
                         </div>
                     })}</div>
                     }

@@ -1,8 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './static/style/App.less';
-import AppRouter from './router'
+import {TransProvider} from 'use-i18n';
+import AppRouter from './router';
+import i18n from './i18n';
+localStorage.removeItem('locales');
+
 ReactDOM.render(
-    <AppRouter/>,
+    <TransProvider i18n={i18n}>
+        <AppRouter/>
+    </TransProvider>,
     document.getElementById('root')
 );

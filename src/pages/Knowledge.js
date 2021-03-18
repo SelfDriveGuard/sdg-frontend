@@ -6,36 +6,9 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import CodeMirror from "@uiw/react-codemirror";
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
+import {useI18n} from "use-i18n";
 
 const {Option} = Select;
-const tree = [{
-    "name": "C-NCAP",
-    "isLeaf": false,
-    "key": "0-0",
-    "children": [{
-        "name": "人行通道",
-        "key": "0-0-1",
-        "isLeaf": true,
-    }, {
-        "name": "十字路口",
-        "key": "0-0-2",
-        "isLeaf": true,
-    }, {
-        "name": "跟车",
-        "key": "0-0-3",
-        "isLeaf": true,
-    }, {
-        "name": "限速",
-        "key": "0-0-4",
-        "isLeaf": true,
-    },]
-}, {
-    "folderName": "E-NCAP",
-    "name": "E-NCAP",
-    "isLeaf": false,
-    "key": "0-1",
-    "children": []
-}];
 
 const Knowledge = () => {
     const [treeData, setTreeData] = useState([]);
@@ -46,6 +19,42 @@ const Knowledge = () => {
     const [code, setCode] = useState('');
     const codeMirror = useRef();
 
+    const t = useI18n();
+
+    const tree = [{
+        "name": "C-NCAP",
+        "originName": "C-NCAP",
+        "isLeaf": false,
+        "key": "0-0",
+        "children": [{
+            "name": t.passageway,
+            "originName": "人行通道",
+            "key": "0-0-1",
+            "isLeaf": true,
+        }, {
+            "name": t.crossroads,
+            "originName": "十字路口",
+            "key": "0-0-2",
+            "isLeaf": true,
+        }, {
+            "name": t.following,
+            "originName": "跟车",
+            "key": "0-0-3",
+            "isLeaf": true,
+        }, {
+            "name": t.speedLimit,
+            "originName": "限速",
+            "key": "0-0-4",
+            "isLeaf": true,
+        },]
+    }, {
+        "name": "E-NCAP",
+        "originName": "E-NCAP",
+        "isLeaf": false,
+        "key": "0-1",
+        "children": []
+    }];
+
     useEffect(() => {
         (async () => {
             renderTreeData(tree);
@@ -55,15 +64,15 @@ const Knowledge = () => {
 
     const handleTreeSelect = async (key, info) => {
         setSelectNode(info.node);
-        await getCode(info.node.name , lang);
+        if(info.node.isLeaf) await getCode(info.node.originName , lang);
     };
     const handleCopy = () => {
-        message.success('复制成功');
+        message.success(t.copySuccess);
     };
 
     const langChange = async (val) => {
         setLang(val);
-        await getCode(selectNode.name , val);
+        await getCode(selectNode.originName , val);
     };
 
     const getCode = async (name, lang) => {
@@ -99,7 +108,7 @@ const Knowledge = () => {
     return (
         <div className="knowledge">
             <div className="knowledge-menu">
-                <div className="menu-top">场景库</div>
+                <div className="menu-top">{t.scene}</div>
                 <Tree
                     selectedKeys={[selectNode.key]}
                     onSelect={handleTreeSelect}
@@ -112,8 +121,8 @@ const Knowledge = () => {
                 <div className="main-top">
                     <div className="main-top-left">
                         <div className="knowledge-title">{selectNode.name && selectNode.name.split('.')[0]}</div>
-                        <div className="main-top-label">语言：</div>
-                        <Select placeholder="请选择语言"
+                        <div className="main-top-label">{t.lang}：</div>
+                        <Select placeholder={t.chooseLang}
                                 onChange={langChange}
                                 className="select-left" defaultValue={'scenest'}>
                             <Option value={'scenest'}># scenest</Option>
@@ -123,7 +132,7 @@ const Knowledge = () => {
 
                     <CopyToClipboard onCopy={handleCopy}
                                      text={code}>
-                        <div className="btn"><i className="iconfont icondocument"/>复制</div>
+                        <div className="btn"><i className="iconfont icondocument"/>{t.copy}</div>
                     </CopyToClipboard>
                 </div>
                 <div className="main-code">

@@ -2,10 +2,16 @@ import React, {useState, useContext} from "react";
 import {Modal, Input, message} from 'antd';
 import IndexContext from "../context";
 import {registerApi} from '../api';
+import {useI18n} from "use-i18n";
+import {getQueryVariable} from '../utils';
+
 const Register = () => {
     const {registerVisible, dispatch} = useContext(IndexContext);
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
+
+    const t = useI18n();
+
     const cancelModal = () => {
         setUserName('');
         setPassword('');
@@ -18,12 +24,14 @@ const Register = () => {
         setPassword(val.target.value);
     };
     const handleRegister = async () => {
+        const role = getQueryVariable('role');
         await registerApi({
             userName,
             password,
+            dev: role === 'dev',
         });
         cancelModal();
-        message.success('注册成功！');
+        message.success(t.registerSuccess);
     };
     return (
         <Modal
@@ -33,11 +41,11 @@ const Register = () => {
             onCancel={cancelModal}
             footer={null}
             centered
-            title="账号注册">
-            <Input placeholder="请输入用户名" className="userName" onChange={changeUserName} value={userName}/>
-            <Input placeholder="请输入密码" className="password" type="password"
+            title={t.registerTitle}>
+            <Input placeholder={t.accountPlaceholder} className="userName" onChange={changeUserName} value={userName}/>
+            <Input placeholder={t.pwdPlaceholder} className="password" type="password"
                    onChange={changePassword} value={password}/>
-            <button className="login-btn" onClick={handleRegister}>注册</button>
+            <button className="login-btn" onClick={handleRegister}>{t.register}</button>
         </Modal>
     )
 };

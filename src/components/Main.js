@@ -18,6 +18,7 @@ import {XVIZ_STYLE, CAR} from "../constants";
 import IndexContext from "../context";
 import {myServerApi} from "../api";
 import {getDirection} from '../utils';
+import { useI18n } from 'use-i18n';
 
 const {TabPane} = Tabs;
 let WS_IP = '';
@@ -37,7 +38,7 @@ const myComponentProps = {
 };
 
 const Main = () => {
-    const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
+    const {operateStatus, userInfo, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
     const overallView = useRef();
     const [tabVal, setTabVal] = useState('1');
@@ -48,6 +49,8 @@ const Main = () => {
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
     const [hoverLog, setHoverLog] = useState({});
+
+    const t = useI18n();
 
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -64,12 +67,12 @@ const Main = () => {
     }, [tabVal, operateStatus]);
 
     useEffect(() => {
-        if (loginStatus) {
+        if (userInfo) {
             (async () => {
                 await getMyServer();
             })()
         }
-    }, [loginStatus]);
+    }, [userInfo]);
 
     const handleCodeBlur = () => {
         // const code = codeMirror.current.editor.getValue();
@@ -232,16 +235,16 @@ const Main = () => {
 
     // 运行
     const submit = () => {
-        if (!loginStatus) {
+        if (!userInfo) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
         if (!WS_IP) {
-            message.warning('请选择服务器');
+            message.warning(t.chooseServer);
             return;
         }
         if (!code) {
-            message.warning('代码不能为空');
+            message.warning(t.codeEmpty);
             return;
         }
         handleSocket();
@@ -273,16 +276,16 @@ const Main = () => {
 
     // 切换地图
     const mapChange = async (map_name) => {
-        if (!loginStatus) {
+        if (!userInfo) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
         if (!WS_IP) {
-            message.warning('请选择服务器');
+            message.warning(t.chooseServer);
             return;
         }
         dispatch({type: 'SET_LOADING', loading: true});
-        outputLog.push({cmd: '', msg: '正在启动...'});
+        outputLog.push({cmd: '', msg: t.isRunning});
         dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         setCustomLayers([]);
         handleSocket();
@@ -329,20 +332,20 @@ const Main = () => {
             <Spin spinning={loading} size="large">
                 <div className="main">
                     <Tabs defaultActiveKey="1" onChange={tabCallback} activeKey={tabVal}>
-                        <TabPane tab="代码" key="1">
+                        <TabPane tab={t.code} key="1">
                             <div className="main-tab1">
                                 <div className="main-top">
                                     <div className="main-top-left">
-                                        <div className="main-top-label">语言：</div>
-                                        <Select placeholder="请选择语言"
+                                        <div className="main-top-label">{t.lang}：</div>
+                                        <Select placeholder={t.chooseLang}
                                                 onChange={langChange}
                                                 className="select-left" defaultValue={'scenest'}>
                                             <Option value={'scenest'}># scenest</Option>
                                             <Option value={'scenic'}># scenic</Option>
                                             <Option value={'scenario'}># scenario</Option>
                                         </Select>
-                                        <div className="main-top-label">服务器：</div>
-                                        <Select placeholder="请选择服务器"
+                                        <div className="main-top-label">{t.server}：</div>
+                                        <Select placeholder={t.chooseServer}
                                                 onChange={serverChange}
                                                 className="select-left select-server" defaultValue={undefined}>
                                             {myServer.map((item) => {
@@ -351,8 +354,8 @@ const Main = () => {
                                                 </Option>
                                             })}
                                         </Select>
-                                        <div className="main-top-label">地图：</div>
-                                        <Select placeholder="请选择地图"
+                                        <div className="main-top-label">{t.map}：</div>
+                                        <Select placeholder={t.chooseMap}
                                                 onChange={mapChange}
                                                 className="select-left" defaultValue={undefined}>
                                             <Option value={'Town01'}>Town01</Option>
@@ -366,7 +369,7 @@ const Main = () => {
                                     <div className="main-top-right">
                                         <button className="submit" onClick={submit}>
                                             {
-                                                operateStatus ? '停止' : '运行'
+                                                operateStatus ? t.stop : t.run
                                             }
                                         </button>
                                     </div>
@@ -385,7 +388,7 @@ const Main = () => {
                                 </div>
                             </div>
                         </TabPane>
-                        <TabPane tab="地图俯视" key="2">
+                        <TabPane tab={t.overlook} key="2">
                             <div className="main-item">
                                 <div className="item-inner">
                                     {(log && (mapName || operateStatus)) ? <LogViewer
@@ -416,7 +419,7 @@ const Main = () => {
                                 </div>
                             </div>
                         </TabPane>
-                        <TabPane tab="车辆前角" key="3">
+                        <TabPane tab={t.carFront} key="3">
                             <div className="main-item">
                                 <div className="item-inner item-view3">
                                     {(log)
@@ -428,7 +431,7 @@ const Main = () => {
                                 </div>
                             </div>
                         </TabPane>
-                        <TabPane tab="全局视角" key="4">
+                        <TabPane tab={t.carBack} key="4">
                             <div className="main-item">
                                 <div className="item-inner item-view4" ref={overallView} onMouseDown={handleMousedown}>
                                     {(log)
