@@ -7,15 +7,15 @@ const i18n = {
 
         // Main
         code: 'Code',
-        overlook: 'Map Overlook',
-        carFront: 'Front Of Vehicle',
-        carBack: 'Overall Perspective',
+        overlook: 'Map top-down view',
+        carFront: 'Front view Of vehicle',
+        carBack: 'Global perspective',
         lang: 'Language',
-        chooseLang: 'Please Select Language',
+        chooseLang: 'Please select a language',
         server: 'Server',
-        chooseServer: 'Please Select a Server',
+        chooseServer: 'Please select a server',
         map: 'Map',
-        chooseMap: 'Please Select Map',
+        chooseMap: 'Please select a map',
         stop: 'Stop',
         run: 'Run',
         codeEmpty: 'Code cannot be empty',
@@ -23,15 +23,15 @@ const i18n = {
 
         // Login
         loginTitle: 'Account login',
-        accountPlaceholder: 'Please enter user name',
+        accountPlaceholder: 'Please enter username',
         pwdPlaceholder: 'Please enter password',
         login: 'Login',
-        goRegister: 'To register',
-        loginSuccess: 'Login Success',
-        loginFail: 'Wrong user name or password',
+        goRegister: 'Register',
+        loginSuccess: 'Login successful',
+        loginFail: 'Incorrect username or password',
 
         // Register
-        registerSuccess: 'Register successful',
+        registerSuccess: 'Registration successful',
         registerTitle: 'Account registration',
         register: 'Register',
 
@@ -39,7 +39,7 @@ const i18n = {
         addTitle: 'Add Project',
         ok: 'Ok',
         cancel: 'Cancel',
-        createSuccess: 'Created Successfully',
+        createSuccess: 'Created',
         folderPlaceHolder: 'Please select or enter a project name',
         filePlaceHolder: 'Please enter a file name',
 
@@ -47,15 +47,15 @@ const i18n = {
         output: 'Output information',
         assert: 'Assert key points',
         type: 'Type',
-        timeStamp: 'Time Stamp',
-        desc: 'Description ',
+        timeStamp: 'Timestamp',
+        desc: 'Description',
 
         // MyServer
         projectConfig: 'Product configuration',
 
         // ProjectMenu
-        deleteSuccess: 'Delete successful',
-        saveSuccess: 'Saved successfully',
+        deleteSuccess: 'Deleted',
+        saveSuccess: 'Saved',
         rename: 'Rename',
         sureDelete: 'Are you sure you want to delete?',
         delete: 'Delete',
@@ -64,20 +64,20 @@ const i18n = {
         projectManage: 'Project management',
 
         // PurchaseModal
-        buySuccess: 'Purchase success',
+        buySuccess: 'Purchased',
         buyNow: 'Buy now',
         project: 'Project',
 
         // rename
-        renameSuccess: 'Rename success',
+        renameSuccess: 'Renamed',
         enterFileName: 'Please enter a file name',
 
         // Knowledge
         copy: 'Copy',
-        scene: 'Scene Library',
-        copySuccess: 'Copy success',
+        scene: 'Scene library',
+        copySuccess: 'Copied',
         passageway: 'Sidewalk',
-        crossroads: 'Crossroads',
+        crossroads: 'Crossroad',
         following: 'Car following',
         speedLimit: 'Speed limit',
     },

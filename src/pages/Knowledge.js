@@ -6,7 +6,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import CodeMirror from "@uiw/react-codemirror";
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 const {Option} = Select;
 

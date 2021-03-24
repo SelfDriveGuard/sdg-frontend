@@ -2,7 +2,7 @@ import React, {useContext, useState} from "react";
 import {Modal, Input, message} from 'antd';
 import IndexContext from "../context";
 import {loginApi, meApi} from '../api/index';
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 const Login = () => {
     const {loginVisible, dispatch} = useContext(IndexContext);

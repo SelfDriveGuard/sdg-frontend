@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext} from "react";
 import {Modal, Table} from 'antd';
 import IndexContext from "../context";
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 
 const MyServer = (props) => {

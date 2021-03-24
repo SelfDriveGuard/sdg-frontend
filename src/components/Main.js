@@ -18,7 +18,7 @@ import {XVIZ_STYLE, CAR} from "../constants";
 import IndexContext from "../context";
 import {myServerApi} from "../api";
 import {getDirection} from '../utils';
-import { useI18n } from 'use-i18n';
+import { useI18n } from '../plugins/use-i18n';
 
 const {TabPane} = Tabs;
 let WS_IP = '';

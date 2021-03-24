@@ -6,7 +6,10 @@ import Purchase from "./PurchaseModal";
 import IndexContext from "../context";
 import MyServer from "./MyServer";
 import {logoutApi, meApi} from "../api";
-import { useI18n, setLang } from 'use-i18n';
+import { useI18n, setLang } from '../plugins/use-i18n';
+
+import logonEn from '../static/img/logo-en.png';
+import logonZh from '../static/img/logo-zh.png';
 
 const Header = () => {
     const {loginVisible, registerVisible, userInfo, dispatch} = useContext(IndexContext);
@@ -40,7 +43,7 @@ const Header = () => {
     return (
         <div className="header">
             <div className="header-inner">
-                <div>自动驾驶模拟测试云平台</div>
+                <img src={lang === 'en-US' ? logonEn : logonZh} alt="" className="logo"/>
                 <div className="header-btn-group">
                     <button className="header-purchase" onClick={handlePurchase}>{t.buy}</button>
                     {lang === 'en-US' ?

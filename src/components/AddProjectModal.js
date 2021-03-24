@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Modal, Button, Input, message} from 'antd';
 import {addProjectApi} from '../api';
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 const AddProjectModal = (props) => {
     const {visible, cancel, updateSuccess} = props;

@@ -2,7 +2,7 @@ import React, {useState, useContext} from "react";
 import {Modal, Input, message} from 'antd';
 import IndexContext from "../context";
 import {registerApi} from '../api';
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 import {getQueryVariable} from '../utils';
 
 const Register = () => {

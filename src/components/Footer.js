@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import IndexContext from "../context";
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 let dragAble = false;
 let oldY = 0;

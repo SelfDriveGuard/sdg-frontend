@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Modal, Button, Input, message} from 'antd';
 import {updateProjectApi} from '../api';
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 const RenameModal = (props) => {
     const {visible, cancel, selectNode, updateSuccess} = props;

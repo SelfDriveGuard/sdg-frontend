@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext} from "react";
 import {Modal, message} from 'antd';
 import {getServersApi, buyServerApi, myServerApi} from '../api';
 import IndexContext from "../context";
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 const obj = {
     0: 'A',

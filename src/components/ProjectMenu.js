@@ -5,7 +5,7 @@ import RenameModal from "./RenameModal";
 import {getTreeApi, deleteProjectApi, saveProjectApi} from '../api';
 import IndexContext from "../context";
 import {baseUrl} from '../plugins/axios';
-import {useI18n} from "use-i18n";
+import {useI18n} from "../plugins/use-i18n";
 
 let currentNode;
 const ProjectMenu = (props) => {
