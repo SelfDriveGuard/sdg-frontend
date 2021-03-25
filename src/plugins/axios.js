@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const baseUrl = `${process.env.REACT_IP}:${process.env.REACT_PORT}`;
+export const baseUrl = window.location.hostname === "localhost" ? `http://localhost:8092` : 'http://118.31.126.252:8092';
 
 // axios的实例及拦截器配置
 const http = axios.create({
