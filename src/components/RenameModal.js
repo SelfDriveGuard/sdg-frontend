@@ -1,10 +1,14 @@
 import React, {useState} from "react";
 import {Modal, Button, Input, message} from 'antd';
 import {updateProjectApi} from '../api';
+import {useI18n} from "../plugins/use-i18n";
 
 const RenameModal = (props) => {
     const {visible, cancel, selectNode, updateSuccess} = props;
     const [updateName, setUpdateName] = useState('');
+
+    const t = useI18n();
+
     const cancelModal = () => {
         setUpdateName('');
         cancel();
@@ -21,7 +25,7 @@ const RenameModal = (props) => {
             folderName,
             oldPath: path,
         });
-        message.success('重命名成功');
+        message.success(t.renameSuccess);
         updateSuccess();
         cancelModal();
     };
@@ -33,15 +37,15 @@ const RenameModal = (props) => {
             onCancel={cancelModal}
             footer={[
                 <Button key="submit" type="primary" onClick={submit}>
-                    确认
+                    {t.ok}
                 </Button>,
                 <Button key="back" onClick={cancelModal}>
-                    取消
+                    {t.cancel}
                 </Button>,
             ]}
             centered
-            title="重命名">
-            <Input className="add-input" onChange={nameChange} value={updateName} placeholder="请输入文件名称"/>
+            title={t.rename}>
+            <Input className="add-input" onChange={nameChange} value={updateName} placeholder={t.enterFileName}/>
         </Modal>
     )
 };

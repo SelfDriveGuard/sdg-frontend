@@ -2,11 +2,8 @@ import React, {useState, useContext, useRef, useEffect} from "react";
 import CodeMirror from '@uiw/react-codemirror';
 import 'codemirror/keymap/sublime';
 import 'codemirror/theme/base16-dark.css';
-import {Select, Spin, message} from 'antd';
-import ObstacleModal from "./ObstacleModal";
-import EgoModal from "./EgoModal";
-import MapModal from "./MapModal";
-import Menu from "./Menu";
+import {Select, Spin, message, Tabs} from 'antd';
+import ProjectMenu from "./ProjectMenu";
 
 import {GeoJsonLayer} from "@deck.gl/layers";
 import {COORDINATE_SYSTEM} from "@deck.gl/core";
@@ -16,48 +13,66 @@ import {
     XVIZLiveLoader,
     VIEW_MODE,
 } from "streetscape.gl";
-import {XVIZ_STYLE, CAR, VIEW_OFFSET, VIEW_STATE} from "../constants";
+import {XVIZ_STYLE, CAR} from "../constants";
 
 import IndexContext from "../context";
 import {myServerApi} from "../api";
+import {getDirection} from '../utils';
+import { useI18n } from '../plugins/use-i18n';
 
+const {TabPane} = Tabs;
 let WS_IP = '';
 
 const {Option} = Select;
 let carlaLog, ws;
-let mapLayer, mapLayerBig;
+let mapLayer;
 let index = 0;
 
 const outputLog = [];
 
 const myComponentProps = {
     video: {
-        height: 225,
-        width: 300,
+        height: 800,
+        width: 1200,
     }
 };
+
 const Main = () => {
-    const {operateStatus, loginStatus, code, myServer, loading, dispatch} = useContext(IndexContext);
+    const {operateStatus, userInfo, code, myServer, loading, dispatch} = useContext(IndexContext);
     const codeMirror = useRef();
-    const [obstacleVisible, setObstacleVisible] = useState(false);
-    const [egoVisible, setEgoVisible] = useState(false);
-    const [mapVisible, setMapVisible] = useState(false);
+    const overallView = useRef();
+    const [tabVal, setTabVal] = useState('1');
 
     const [mapName, setMapName] = useState('');
     const [lang, setLang] = useState('scenest');
 
     const [log, setLog] = useState('');
     const [customLayers, setCustomLayers] = useState([]);
-    const [bigLayers, setBigLayers] = useState([]);
     const [hoverLog, setHoverLog] = useState({});
 
+    const t = useI18n();
+
     useEffect(() => {
-        if (loginStatus) {
+        const handleKeyDown = (e) => {
+            if (tabVal !== '4' || !operateStatus) return;
+            const keyMap = ['w', 'a', 's', 'd', 'q', 'e'];
+            if (keyMap.indexOf(e.key) === -1) return;
+            ws.send(JSON.stringify({
+                cmd: "move",
+                code: `key_${e.key}`,
+            }));
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [tabVal, operateStatus]);
+
+    useEffect(() => {
+        if (userInfo) {
             (async () => {
                 await getMyServer();
             })()
         }
-    }, [loginStatus]);
+    }, [userInfo]);
 
     const handleCodeBlur = () => {
         // const code = codeMirror.current.editor.getValue();
@@ -82,6 +97,30 @@ const Main = () => {
                 showHover: false
             });
         }
+    };
+
+    const changeOption = (selector, tabVal) => {
+        setTimeout(() => {
+            const wrapper = document.querySelector(selector);
+            const select = wrapper.querySelector('select');
+            if(!select) return;
+            let option = wrapper.querySelectorAll('option');
+            const arr = [];
+            option.forEach((item) => {
+                arr.push(item.value.split('/')[3]);
+            });
+            arr.sort((a, b) => a - b);
+            option = tabVal === '3' ? arr[arr.length - 1] :arr[0];
+            select.value = `/camera/rgb/${option}`;
+            const evt = document.createEvent("Events");
+            evt.initEvent('change', true, true);
+            select.dispatchEvent(evt);
+        }, 300);
+    };
+
+    const tabCallback = (val) => {
+        setTabVal(val);
+        if(operateStatus && (val === "3" || val === '4')) changeOption(`.item-view${val}`, val);
     };
 
     const handleSocket = () => {
@@ -119,34 +158,12 @@ const Main = () => {
                 mapLayer = new GeoJsonLayer({
                     ...config,
                     id: `carla_map${index}`,
-                });
-                mapLayerBig = new GeoJsonLayer({
-                    ...config,
-                    id: `carla_map_big${index}`,
                     pickable: true,
                     onClick: info => _onLayerHover(info),
                     onHover: info => _onLayerHover(info)
                 });
-                // textLayer = new TextLayer({
-                //     id: `text-layer${index}`,
-                //     data: metadata.map.features,
-                //     billboard: false,
-                //     fontFamily: 'sans-serif',
-                //     sizeUnits: 'meters',
-                //     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
-                //     coordinateOrigin: [0, 0, 0],
-                //     getPosition: d => d.geometry.coordinates[1],
-                //     getText: d => d.properties.name,
-                //     getColor: [255, 255, 0, 255],
-                //     getSize: 0.3,
-                //     getAngle: 0,
-                //     getTextAnchor: 'middle',
-                //     getAlignmentBaseline: 'center',
-                // });
                 index += 1;
                 setCustomLayers([mapLayer]);
-                // setBigLayers([mapLayerBig, textLayer]);
-                setBigLayers([mapLayerBig]);
             }
         })
             .on("error", console.error)
@@ -156,14 +173,6 @@ const Main = () => {
                 console.log('finish');
             })
             .connect();
-    };
-
-    const objectChange = (val) => {
-        if (val === 2) {
-            setEgoVisible(true);
-        } else if (val === 5) {
-            setObstacleVisible(true);
-        }
     };
 
     const langChange = (val) => {
@@ -202,32 +211,18 @@ const Main = () => {
         };
         ws.onmessage = (evt) => {
             const data = JSON.parse(evt.data);
-            const { state, msg, cmd } = data;
+            const {state, msg, cmd} = data;
             if (cmd && cmd !== 'ASSERT') {
                 outputLog.push({cmd, msg});
                 dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
             }
-            if (cmd === 'READY') dispatch({type: 'SET_LOADING', loading: false});
+            if (cmd === 'READY') {
+                dispatch({type: 'SET_LOADING', loading: false});
+                setTabVal("4");
+                changeOption(`.item-view4`, "4");
+            }
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
-                if(cmd === 'DRIVING') {
-                    const wrapper = document.querySelectorAll('.item-inner');
-                    const wrapper1 = wrapper[1];
-                    const wrapper2 = wrapper[2];
-                    const select = wrapper1.querySelector('select');
-                    const option = wrapper1.querySelectorAll('option')[2];
-                    select.value = option.innerText;
-                    const evt = document.createEvent("Events");
-                    evt.initEvent('change',true,true);
-                    select.dispatchEvent(evt);
-
-                    const select1 = wrapper2.querySelector('select');
-                    const option1 = wrapper2.querySelectorAll('option')[1];
-                    select1.value = option1.innerText;
-                    const evt1 = document.createEvent("Events");
-                    evt1.initEvent('change',true,true);
-                    select1.dispatchEvent(evt1);
-                }
             } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
                 if (cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
@@ -240,16 +235,16 @@ const Main = () => {
 
     // 运行
     const submit = () => {
-        if (!loginStatus) {
+        if (!userInfo) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
         if (!WS_IP) {
-            message.warning('请选择服务器');
+            message.warning(t.chooseServer);
             return;
         }
         if (!code) {
-            message.warning('代码不能为空');
+            message.warning(t.codeEmpty);
             return;
         }
         handleSocket();
@@ -265,6 +260,7 @@ const Main = () => {
             }
             dispatch({type: 'SET_LOADING', loading: false});
         } else {
+            dispatch({type: 'SET_ASSERTION', cont: []}); // 清空assertion
             const currentCode = codeMirror.current.editor.getValue();
             ws.send(JSON.stringify({
                 cmd: "run",
@@ -280,19 +276,18 @@ const Main = () => {
 
     // 切换地图
     const mapChange = async (map_name) => {
-        if (!loginStatus) {
+        if (!userInfo) {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
         if (!WS_IP) {
-            message.warning('请选择服务器');
+            message.warning(t.chooseServer);
             return;
         }
         dispatch({type: 'SET_LOADING', loading: true});
-        outputLog.push({cmd: '', msg: '正在启动...'});
+        outputLog.push({cmd: '', msg: t.isRunning});
         dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         setCustomLayers([]);
-        setBigLayers([]);
         handleSocket();
         setTimeout(() => {
             linkSocket('', map_name, true);
@@ -308,130 +303,149 @@ const Main = () => {
         });
     };
 
+    const handleMousedown = (e) => {
+        if (!operateStatus) return;
+        e.preventDefault();
+        let startX = e.pageX;
+        let startY = e.pageY;
+        overallView.current.onmouseup = (event) => {
+            if (!operateStatus) return;
+            let endX = event.pageX;
+            let endY = event.pageY;
+            const direction = getDirection(startX, startY, endX, endY);
+            const obj = {
+                1: 'u', // 上
+                2: 'd', // 下
+                3: 'l', // 左
+                4: 'r', // 右
+            };
+            ws.send(JSON.stringify({
+                cmd: "move",
+                code: `drag_${obj[direction]}`,
+            }));
+        };
+    };
+
     return (
         <>
-            <Menu getCode={getCode}/>
+            <ProjectMenu getCode={getCode}/>
             <Spin spinning={loading} size="large">
                 <div className="main">
-                    <div className="main-left">
-                        <div className="main-top">
-                            <div className="main-top-left">
-                                <div className="main-top-label">语言：</div>
-                                <Select placeholder="请选择语言"
-                                        onChange={langChange}
-                                        className="select-left" defaultValue={'scenest'}>
-                                    <Option value={'scenest'}># scenest</Option>
-                                    <Option value={'scenic'}># scenic</Option>
-                                    <Option value={'scenario'}># scenario</Option>
-                                </Select>
-                                <div className="main-top-label">服务器：</div>
-                                <Select placeholder="请选择服务器"
-                                        onChange={serverChange}
-                                        className="select-left select-server" defaultValue={undefined}>
-                                    {myServer.map((item) => {
-                                        return <Option value={item.ip} key={item.key}>
-                                            {item.ip}
-                                        </Option>
-                                    })}
-                                </Select>
-                                <div className="main-top-label">地图：</div>
-                                <Select placeholder="请选择地图"
-                                        onChange={mapChange}
-                                        className="select-left" defaultValue={undefined}>
-                                    <Option value={'Town01'}>Town01</Option>
-                                    <Option value={'Town02'}>Town02</Option>
-                                    <Option value={'Town03'}>Town03</Option>
-                                    <Option value={'Town04'}>Town04</Option>
-                                    <Option value={'Town05'}>Town05</Option>
-                                </Select>
-                            </div>
+                    <Tabs defaultActiveKey="1" onChange={tabCallback} activeKey={tabVal}>
+                        <TabPane tab={t.code} key="1">
+                            <div className="main-tab1">
+                                <div className="main-top">
+                                    <div className="main-top-left">
+                                        <div className="main-top-label">{t.lang}：</div>
+                                        <Select placeholder={t.chooseLang}
+                                                onChange={langChange}
+                                                className="select-left" defaultValue={'scenest'}>
+                                            <Option value={'scenest'}># scenest</Option>
+                                            <Option value={'scenic'}># scenic</Option>
+                                            <Option value={'scenario'}># scenario</Option>
+                                        </Select>
+                                        <div className="main-top-label">{t.server}：</div>
+                                        <Select placeholder={t.chooseServer}
+                                                onChange={serverChange}
+                                                className="select-left select-server" defaultValue={undefined}>
+                                            {myServer.map((item) => {
+                                                return <Option value={item.ip} key={item.key}>
+                                                    {item.ip}
+                                                </Option>
+                                            })}
+                                        </Select>
+                                        <div className="main-top-label">{t.map}：</div>
+                                        <Select placeholder={t.chooseMap}
+                                                onChange={mapChange}
+                                                className="select-left" defaultValue={undefined}>
+                                            <Option value={'Town01'}>Town01</Option>
+                                            <Option value={'Town02'}>Town02</Option>
+                                            <Option value={'Town03'}>Town03</Option>
+                                            <Option value={'Town04'}>Town04</Option>
+                                            <Option value={'Town05'}>Town05</Option>
+                                        </Select>
+                                    </div>
 
-                            <div className="main-top-right">
-                                <button className="submit" onClick={submit}>
-                                    {
-                                        operateStatus ? '停止' : '运行'
+                                    <div className="main-top-right">
+                                        <button className="submit" onClick={submit}>
+                                            {
+                                                operateStatus ? t.stop : t.run
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="main-code">
+                                    <CodeMirror
+                                        value={code}
+                                        onBlur={handleCodeBlur}
+                                        ref={codeMirror}
+                                        options={{
+                                            theme: 'base16-dark',
+                                            mode: 'jsx',
+                                            lineWrapping: true,
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </TabPane>
+                        <TabPane tab={t.overlook} key="2">
+                            <div className="main-item">
+                                <div className="item-inner">
+                                    {(log && (mapName || operateStatus)) ? <LogViewer
+                                        log={log}
+                                        showMap={false}
+                                        car={CAR}
+                                        xvizStyles={XVIZ_STYLE}
+                                        showTooltip={!hoverLog.showHover}
+                                        viewMode={VIEW_MODE["TOP_DOWN"]}
+                                        customLayers={customLayers}
+                                    />
+
+                                    : <i className="iconfont iconpic"/>}
+                                    {hoverLog.showHover ? (
+                                        <div style={{
+
+                                            left: hoverLog.hoverObject.x,
+                                            top: hoverLog.hoverObject.y
+                                        }} className="map-hover-modal">
+                                            <p><span className="label">roadId:</span> {hoverLog.hoverObject.roadId}</p>
+                                            <p><span className="label">laneId:</span> {hoverLog.hoverObject.laneId}</p>
+                                            <p><span className="label">positionX:</span> {hoverLog.hoverObject.positionX}</p>
+                                            <p><span className="label">positionY:</span> {-hoverLog.hoverObject.positionY}</p>
+                                        </div>
+                                    ) : (
+                                        <></>
+                                    )}
+                                </div>
+                            </div>
+                        </TabPane>
+                        <TabPane tab={t.carFront} key="3">
+                            <div className="main-item">
+                                <div className="item-inner item-view3">
+                                    {(log)
+                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"
+                                                     componentProps={myComponentProps}
+                                        />
+                                        : <i className="iconfont iconpic"/>
                                     }
-                                </button>
+                                </div>
                             </div>
-                        </div>
-                        <div className="main-code">
-                            {/*<Select placeholder="快速添加"*/}
-                            {/*        onChange={objectChange}*/}
-                            {/*        className="select-right" defaultValue={undefined}>*/}
-                            {/*    <Option value={1}>地图</Option>*/}
-                            {/*    <Option value={2}>控制车辆</Option>*/}
-                            {/*    <Option value={3}>NPC车辆</Option>*/}
-                            {/*    <Option value={4}>行人</Option>*/}
-                            {/*    <Option value={5}>障碍物</Option>*/}
-                            {/*</Select>*/}
-                            <CodeMirror
-                                value={code}
-                                onBlur={handleCodeBlur}
-                                ref={codeMirror}
-                                options={{
-                                    theme: 'base16-dark',
-                                    mode: 'jsx',
-                                    lineWrapping: true,
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <div className="main-right">
-                        <div className="main-right-item">
-                            <div className="item-inner">
-                                {(log && (mapName || operateStatus)) ? <LogViewer
-                                    onClick={() => {
-                                        setMapVisible(true)
-                                    }}
-                                    log={log}
-                                    showMap={false}
-                                    car={CAR}
-                                    xvizStyles={XVIZ_STYLE}
-                                    showTooltip={true}
-                                    viewMode={VIEW_MODE["TOP_DOWN"]}
-                                    viewOffset={VIEW_OFFSET}
-                                    viewState={VIEW_STATE}
-                                    customLayers={customLayers}
-                                /> : <i className="iconfont iconpic"/>}
+                        </TabPane>
+                        <TabPane tab={t.carBack} key="4">
+                            <div className="main-item">
+                                <div className="item-inner item-view4" ref={overallView} onMouseDown={handleMousedown}>
+                                    {(log)
+                                        ? <XVIZPanel log={log} name="Camera"
+                                                     className="camera-wrapper"
+                                                     componentProps={myComponentProps}/>
+                                        : <i className="iconfont iconpic"/>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                        <div className="main-right-item">
-                            <div className="item-inner">
-                                {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper" componentProps={myComponentProps}/>
-                                    : <i className="iconfont iconpic"/>
-                                }
-                            </div>
-                        </div>
-                        <div className="main-right-item">
-                            <div className="item-inner">
-                                {(operateStatus && log)
-                                    ? <XVIZPanel log={log} name="Camera" className="camera-wrapper" componentProps={myComponentProps}/>
-                                    : <i className="iconfont iconpic"/>
-                                }
-                            </div>
-                        </div>
-                    </div>
+                        </TabPane>
+                    </Tabs>
                 </div>
             </Spin>
-            <ObstacleModal
-                visible={obstacleVisible} cancel={() => {
-                setObstacleVisible(false)
-            }}
-            />
-            <EgoModal
-                visible={egoVisible} cancel={() => {
-                setEgoVisible(false)
-            }}
-            />
-            <MapModal
-                layers={bigLayers}
-                log={log}
-                hoverLog={hoverLog}
-                visible={mapVisible} cancel={() => {
-                setMapVisible(false)
-            }}
-            />
         </>
     )
 };

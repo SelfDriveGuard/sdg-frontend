@@ -2,7 +2,7 @@ const defaultState = {
     operateStatus: false, // 运行结果显示
     loginVisible: false, // 登陆弹框
     registerVisible: false, // 注册弹框
-    loginStatus: false, // 是否登录
+    userInfo: false, // 是否登录
     code: '',
     myServer: [], // 我的服务器列表,
     assertion: [],  //Assert关键点
@@ -27,10 +27,10 @@ const reducer = (state = defaultState, action) => {
                 ...state,
                 registerVisible: action.status,
             };
-        case 'SET_LOGIN_STATUS':
+        case 'SET_USER_INFO':
             return {
                 ...state,
-                loginStatus: action.status,
+                userInfo: action.userInfo,
             };
         case 'SET_CODE':
             return {

@@ -3,7 +3,7 @@ const IndexContext = React.createContext({
     operateStatus: false,
     loginVisible: false,
     registerVisible: false,
-    loginStatus: false,
+    userInfo: false,
     code: '',
     myServer: [],
     assertion: [],  // Assert关键点

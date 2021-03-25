@@ -2,6 +2,7 @@ import React, {useState, useEffect, useContext} from "react";
 import {Modal, message} from 'antd';
 import {getServersApi, buyServerApi, myServerApi} from '../api';
 import IndexContext from "../context";
+import {useI18n} from "../plugins/use-i18n";
 
 const obj = {
     0: 'A',
@@ -13,6 +14,8 @@ const Purchase = (props) => {
     const {visible, cancel} = props;
     const [goods, setGoods] = useState([]);
     const {dispatch} = useContext(IndexContext);
+
+    const t = useI18n();
 
     useEffect(() => {
         if(visible) {
@@ -45,7 +48,7 @@ const Purchase = (props) => {
         });
         dispatch({type: 'SET_MY_SERVER', myServer: data});
 
-        message.success('购买成功');
+        message.success(t.buySuccess);
         cancel();
     };
     return (
@@ -56,13 +59,13 @@ const Purchase = (props) => {
             onCancel={cancelModal}
             footer={null}
             centered
-            title="立即购买">
+            title={t.buyNow}>
             <div className="purchase">
                 {goods.map((item) => {
                     return <div className="purchase-item" key={item.key}>
                         <div className="purchase-cont">
                             <div className="purchase-top">
-                                产品{item.name}
+                                {t.project}{item.name}
                             </div>
                             <div className="purchase-inner">
                                 <p>{item.simulator}</p>
@@ -72,7 +75,7 @@ const Purchase = (props) => {
                         </div>
                         <div className="purchase-btn" onClick={() => {handleBuy(item)}}>
                             <span>¥ 100</span>
-                            <span>购买</span>
+                            <span>{t.buy}</span>
                         </div>
                     </div>
                 })}

@@ -8,8 +8,9 @@ html {
 }
 
 .index {
+  margin-left: 50px;
   min-height: 678px;
-  height: 100%;
+  height: calc(100vh - 38px);
   position: relative;
 }
 
@@ -20,7 +21,10 @@ html {
   font-size: 14px;
   font-weight: 400;
   color: rgba(255, 255, 255, .7);
-  margin-bottom: 20px;
+
+  .logo {
+    height: 20px;
+  }
 
   &-inner {
     padding: 0 20px;
@@ -50,6 +54,10 @@ html {
     font-size: 24px;
     margin-left: 20px;
   }
+
+  .lang {
+    margin-left: 20px;
+  }
 }
 
 .mg-auto {
@@ -67,15 +75,20 @@ html {
   margin-left: 221px;
   background-color: #42475B;
   border-radius: 10px 10px 0 0;
+
+  &-right {
+    margin-right: 20px;
+  }
+
   &-inner {
     padding: 0 20px 0;
   }
 
   &-top {
+    width: calc(100% - 271px);
     cursor: all-scroll;
     height: 38px;
     position: fixed;
-    width: 100%;
     background: #52576B;
     border-radius: 10px 10px 0 0;
 
@@ -93,6 +106,9 @@ html {
     .iconarrow {
       color: rgba(255, 255, 255, .7);
       display: inline-block;
+      &.active {
+        transform: rotate(180deg);
+      }
     }
 
     .play-btn {
@@ -133,6 +149,29 @@ html {
     line-height: 24px;
     overflow-y: auto;
     font-size: 14px;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: 38px;
+  width: 50px;
+  height: calc(100vh - 38px);
+  background: #52576B;
+  &-item {
+    height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, .7);
+    font-size: 24px;
+    &:hover {
+      color: #fff;
+    }
+    &.active {
+      color: #fff;
+      background-color: #42475B;
+    }
   }
 }
 
@@ -381,6 +420,17 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  .name {
+    width: 100px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: inline-block;
+  }
+  .name-wrapper {
+    display: flex;
+    align-items: baseline;
+  }
   .icondocument {
     margin-right: 4px;
   }
@@ -411,3 +461,32 @@ html {
     }
   }
 }
+
+// tab
+.ant-tabs-top > .ant-tabs-nav {
+  margin-bottom: 26px;
+}
+
+.ant-tabs-tab {
+  padding: 12px 20px;
+  margin: 0;
+}
+
+.ant-tabs-tab:hover {
+  color: #4F5DEB;
+}
+
+.ant-tabs-nav-wrap {
+  border-bottom: 1px solid #41475E;
+}
+
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #4F5DEB;
+  font-weight: 400;
+}
+
+.ant-tabs-ink-bar {
+  background: #4F5DEB;
+}
+
+
