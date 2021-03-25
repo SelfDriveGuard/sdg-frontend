@@ -13,10 +13,10 @@ sudo docker pull selfdriveguard/sdg-frontend:[version tag]
 ## How to run it with docker
 ```sh
 # On Linux system
-docker run -it --network="host" selfdriveguard/sdg-frontend:[version tag]
+docker run -it --network="host" -e SDG_BACKEND_IP=localhost -e SDG_BACKEND_PORT=8092 selfdriveguard/sdg-frontend:[version tag]
 
 # On Windows/MacOS system
-docker run -it -p 8090-8093:8090-8093 selfdriveguard/sdg-frontend:[version tag]
+docker run -it -p 8090-8093:8090-8093 -e SDG_BACKEND_IP=localhost -e SDG_BACKEND_PORT=8092 selfdriveguard/sdg-frontend:[version tag]
 ```
 
 ## how to build image
