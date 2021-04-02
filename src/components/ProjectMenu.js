@@ -9,7 +9,7 @@ import {useI18n} from "../plugins/use-i18n";
 
 let currentNode;
 const ProjectMenu = (props) => {
-    const {getCode} = props;
+    const {getCode, currentStatus, treeSelect} = props;
     const {userInfo, dispatch} = useContext(IndexContext);
     const [addVisible, setAddVisible] = useState(false);
     const [renameVisible, setRenameVisible] = useState(false);
@@ -20,6 +20,34 @@ const ProjectMenu = (props) => {
     const handleRename = () => {
         setRenameVisible(true);
     };
+
+    useEffect(() => {
+        if (currentStatus.status && currentNode) {
+            const {folderName, name} = currentNode;
+            const data = treeData.map((item) => {
+                if (item.folderName === folderName) {
+                    item.children.forEach((innerItem) => {
+                        if (innerItem.name === name) {
+                            innerItem.ws_ip = currentStatus.ws_ip;
+                            innerItem.runStatus = currentStatus.status;
+                            innerItem.title =
+                                <div className="child-tree">
+                                    {currentStatus.status === 'isRunning' ?
+                                        <i className="iconfont iconyunhang status"/> : ''}
+                                    <div className="name-wrapper">
+                                        <i className="iconfont icondocument"/>
+                                        <span className="name">{innerItem.name}</span>
+                                    </div>
+                                    {dropDownChild}
+                                </div>
+                        }
+                    });
+                }
+                return item;
+            });
+            setTreeData(data);
+        }
+    }, [currentStatus]);
 
     const handleDelete = async () => {
         await deleteProjectApi({
@@ -112,6 +140,8 @@ const ProjectMenu = (props) => {
     const handleTreeSelect = (key, info) => {
         if (info.node.isLeaf) {
             dispatch({type: 'SET_CODE', code: info.node.code});
+            const item = info.node;
+            treeSelect(item.ws_ip, item.runStatus);
         }
         currentNode = info.node;
         setSelectNode(info.node);

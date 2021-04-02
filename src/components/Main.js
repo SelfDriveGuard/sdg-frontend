@@ -24,7 +24,7 @@ const {TabPane} = Tabs;
 let WS_IP = '';
 
 const {Option} = Select;
-let carlaLog, ws;
+let ws, carlaLog;
 let mapLayer;
 let index = 0;
 
@@ -50,6 +50,9 @@ const Main = () => {
     const [customLayers, setCustomLayers] = useState([]);
     const [hoverLog, setHoverLog] = useState({});
 
+    const [currentStatus, setCurrentStatus] = useState({status: ''}); // 任务状态（树）
+    const [server, setServer] = useState(undefined);
+
     const t = useI18n();
 
     useEffect(() => {
@@ -66,6 +69,15 @@ const Main = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [tabVal, operateStatus]);
 
+    // 获取服务器列表
+    const getMyServer = async () => {
+        const {data} = await myServerApi();
+        data.forEach((item, index) => {
+            item.key = index;
+        });
+        dispatch({type: 'SET_MY_SERVER', myServer: data});
+    };
+
     useEffect(() => {
         if (userInfo) {
             (async () => {
@@ -74,6 +86,7 @@ const Main = () => {
         }
     }, [userInfo]);
 
+    // editor blur事件
     const handleCodeBlur = () => {
         // const code = codeMirror.current.editor.getValue();
         // dispatch({type: 'SET_CODE', code});
@@ -123,22 +136,23 @@ const Main = () => {
         if(operateStatus && (val === "3" || val === '4')) changeOption(`.item-view${val}`, val);
     };
 
-    const handleSocket = () => {
-        if (carlaLog) return;
+    // 连接 8091
+    const handleSocket = (ip) => {
+        console.log(carlaLog, 8091);
         carlaLog = new XVIZLiveLoader({
             logGuid: "mock",
             bufferLength: 10,
             serverConfig: {
                 defaultLogLength: 50,
-                serverUrl: `ws://${WS_IP}:8091`,
-                //  info.server_ip + ":" + info.server_port,
+                serverUrl: `ws://${ip}:8091`,
             },
             worker: true,
             maxConcurrency: 10
         });
+        const currentCarlaLog = carlaLog;
         setLog(carlaLog);
         carlaLog.on("ready", () => {
-            const metadata = carlaLog.getMetadata();
+            const metadata = currentCarlaLog.getMetadata();
             if (metadata.map) {
                 const config = {
                     coordinateSystem: COORDINATE_SYSTEM.METER_OFFSETS,
@@ -175,41 +189,27 @@ const Main = () => {
             .connect();
     };
 
+    // 语言 select
     const langChange = (val) => {
         setLang(val);
     };
 
+    // 服务器 select
     const serverChange = (val) => {
+        setServer(val);
         WS_IP = val;
-        const currentCode = codeMirror.current.editor.getValue();
-        linkSocket(currentCode, mapName, false);
-        //handleSocket();
+        linkSocket(WS_IP);
     };
 
-    const getMyServer = async () => {
-        const {data} = await myServerApi();
-        data.forEach((item, index) => {
-            item.key = index;
-        });
-        dispatch({type: 'SET_MY_SERVER', myServer: data});
-    };
-
-    const linkSocket = (code, map, is_load_map) => {
-        if (!ws) {
-            ws = new WebSocket(`ws://${WS_IP}:8093`);
-        } else {
-            ws.send(JSON.stringify({
-                cmd: "run",
-                lang: lang,
-                code,
-                map_name: map,
-                is_load_map: is_load_map
-            }));
-        }
+    // 连接 8093
+    const linkSocket = (ip) => {
+        ws = new WebSocket(`ws://${ip}:8093`);
         ws.onopen = () => {
+            console.log(ws, 'onopen');
             ws.send(JSON.stringify({}));
         };
         ws.onmessage = (evt) => {
+            console.log(ws, 'onmsg');
             const data = JSON.parse(evt.data);
             const {state, msg, cmd} = data;
             if (cmd && cmd !== 'ASSERT') {
@@ -223,12 +223,15 @@ const Main = () => {
             }
             if (state === 'isRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
+                setCurrentStatus({status: 'isRunning', ws_ip: ip});
             } else if (state === 'notRunning') {
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
+                setCurrentStatus({status: 'notRunning', ws_ip: ip});
                 if (cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
             }
         };
         ws.onclose = () => {
+            console.log(ws, 'onclose');
             ws = new WebSocket(`ws://${WS_IP}:8093`);
         };
     };
@@ -247,21 +250,17 @@ const Main = () => {
             message.warning(t.codeEmpty);
             return;
         }
-        handleSocket();
         dispatch({type: 'SET_LOADING', loading: true});
         if (operateStatus) {
             ws.send(JSON.stringify({
                 cmd: "stop",
             }));
-            if (log) {
-                carlaLog.close();
-                carlaLog = null;
-                setLog(carlaLog);
-            }
+            closeLog();
             dispatch({type: 'SET_LOADING', loading: false});
         } else {
             dispatch({type: 'SET_ASSERTION', cont: []}); // 清空assertion
             const currentCode = codeMirror.current.editor.getValue();
+            if(!log) handleSocket(WS_IP);
             ws.send(JSON.stringify({
                 cmd: "run",
                 lang: lang,
@@ -288,9 +287,15 @@ const Main = () => {
         outputLog.push({cmd: '', msg: t.isRunning});
         dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
         setCustomLayers([]);
-        handleSocket();
+        handleSocket(WS_IP);
         setTimeout(() => {
-            linkSocket('', map_name, true);
+            ws.send(JSON.stringify({
+                cmd: "run",
+                lang: lang,
+                code: '',
+                map_name: map_name,
+                is_load_map: true,
+            }));
             setMapName(map_name);
         }, 1000);
     };
@@ -303,6 +308,7 @@ const Main = () => {
         });
     };
 
+    // 拖拽 视频
     const handleMousedown = (e) => {
         if (!operateStatus) return;
         e.preventDefault();
@@ -326,9 +332,29 @@ const Main = () => {
         };
     };
 
+    // 点击treeItem 切换地图视频
+    const treeSelect = (ws_ip, runStatus) => {
+        setServer(ws_ip);
+        closeLog();
+        if(!ws_ip || (runStatus !== 'isRunning')) return;
+        setTimeout(() => {
+            linkSocket(ws_ip);
+            handleSocket(ws_ip);
+        }, 200);
+    };
+
+    // 断开 8091
+    const closeLog = () => {
+        if (log) {
+            carlaLog.close();
+            carlaLog = null;
+            setLog(null);
+        }
+    };
+
     return (
         <>
-            <ProjectMenu getCode={getCode}/>
+            <ProjectMenu getCode={getCode} currentStatus={currentStatus} treeSelect={treeSelect}/>
             <Spin spinning={loading} size="large">
                 <div className="main">
                     <Tabs defaultActiveKey="1" onChange={tabCallback} activeKey={tabVal}>
@@ -347,7 +373,8 @@ const Main = () => {
                                         <div className="main-top-label">{t.server}：</div>
                                         <Select placeholder={t.chooseServer}
                                                 onChange={serverChange}
-                                                className="select-left select-server" defaultValue={undefined}>
+                                                value={server}
+                                                className="select-left select-server">
                                             {myServer.map((item) => {
                                                 return <Option value={item.ip} key={item.key}>
                                                     {item.ip}
@@ -404,7 +431,6 @@ const Main = () => {
                                     : <i className="iconfont iconpic"/>}
                                     {hoverLog.showHover ? (
                                         <div style={{
-
                                             left: hoverLog.hoverObject.x,
                                             top: hoverLog.hoverObject.y
                                         }} className="map-hover-modal">

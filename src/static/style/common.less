@@ -420,6 +420,15 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
+  .status {
+    position: absolute;
+    left: -28px;
+  }
+  .iconyunhang {
+    animation: rotation 3s linear infinite;
+    color: #4F5DEB;
+  }
   .name {
     width: 100px;
     white-space: nowrap;
@@ -433,6 +442,15 @@ html {
   }
   .icondocument {
     margin-right: 4px;
+  }
+}
+
+@keyframes rotation {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
   }
 }
 
