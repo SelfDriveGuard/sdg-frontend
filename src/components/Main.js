@@ -138,7 +138,6 @@ const Main = () => {
 
     // 连接 8091
     const handleSocket = (ip) => {
-        console.log(carlaLog, 8091);
         carlaLog = new XVIZLiveLoader({
             logGuid: "mock",
             bufferLength: 10,
@@ -205,11 +204,9 @@ const Main = () => {
     const linkSocket = (ip) => {
         ws = new WebSocket(`ws://${ip}:8093`);
         ws.onopen = () => {
-            console.log(ws, 'onopen');
             ws.send(JSON.stringify({}));
         };
         ws.onmessage = (evt) => {
-            console.log(ws, 'onmsg');
             const data = JSON.parse(evt.data);
             const {state, msg, cmd} = data;
             if (cmd && cmd !== 'ASSERT') {
@@ -231,7 +228,6 @@ const Main = () => {
             }
         };
         ws.onclose = () => {
-            console.log(ws, 'onclose');
             ws = new WebSocket(`ws://${WS_IP}:8093`);
         };
     };
@@ -242,7 +238,7 @@ const Main = () => {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
-        if (!WS_IP) {
+        if (!server) {
             message.warning(t.chooseServer);
             return;
         }
@@ -250,27 +246,29 @@ const Main = () => {
             message.warning(t.codeEmpty);
             return;
         }
+        closeLog();
         dispatch({type: 'SET_LOADING', loading: true});
-        if (operateStatus) {
-            ws.send(JSON.stringify({
-                cmd: "stop",
-            }));
-            closeLog();
-            dispatch({type: 'SET_LOADING', loading: false});
-        } else {
-            dispatch({type: 'SET_ASSERTION', cont: []}); // 清空assertion
-            const currentCode = codeMirror.current.editor.getValue();
-            if(!log) handleSocket(WS_IP);
-            ws.send(JSON.stringify({
-                cmd: "run",
-                lang: lang,
-                code: currentCode,
-                map_name: mapName,
-                is_load_map: false,
-            }));
-            outputLog.push({cmd: '', msg: '正在启动...'});
-            dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
-        }
+        setTimeout(() => {
+            if (operateStatus) {
+                ws.send(JSON.stringify({
+                    cmd: "stop",
+                }));
+                dispatch({type: 'SET_LOADING', loading: false});
+            } else {
+                dispatch({type: 'SET_ASSERTION', cont: []}); // 清空assertion
+                const currentCode = codeMirror.current.editor.getValue();
+                handleSocket(WS_IP);
+                ws.send(JSON.stringify({
+                    cmd: "run",
+                    lang: lang,
+                    code: currentCode,
+                    map_name: mapName,
+                    is_load_map: false,
+                }));
+                outputLog.push({cmd: '', msg: '正在启动...'});
+                dispatch({type: 'SET_OUTPUT_MSG', outputMsg: outputLog});
+            }
+        }, 2000);
     };
 
     // 切换地图
@@ -279,7 +277,7 @@ const Main = () => {
             dispatch({type: 'SET_LOGIN', status: true});
             return;
         }
-        if (!WS_IP) {
+        if (!server) {
             message.warning(t.chooseServer);
             return;
         }
