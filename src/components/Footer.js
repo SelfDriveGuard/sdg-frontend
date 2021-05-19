@@ -4,6 +4,7 @@ import {useI18n} from "../plugins/use-i18n";
 
 let dragAble = false;
 let oldY = 0;
+
 const Footer = () => {
     const {operateStatus, assertion, outputMsg} = useContext(IndexContext);
     const [tab, setTab] = useState(0);
@@ -76,8 +77,27 @@ const Footer = () => {
                     {tab === 0 ? <div>
                         {outputMsg && outputMsg.map((item, index) => {
                             return <div key={index}>
-                                {item.cmd ? <span>cmd: {item.cmd} msg: </span> : ''}
-                                <span> {item.msg}</span>
+                                {item.cmd && item.cmd !== 'CRITERIA'? <span>cmd: {item.cmd} msg: </span> : ''}
+                                {item.msg && item.msg.hasOwnProperty('list') ?
+                                    <div>
+                                        <p>{t.testResult}: </p>
+                                        <p className="score">{t.score}: {item.msg.score}</p>
+                                        <div className="footer-thead">
+                                            <p className="column1">Criterion</p>
+                                            <p className="column2">Result</p>
+                                            <p className="column3">Value</p>
+                                        </div>
+                                        <div className="footer-tbody">
+                                            {item.msg.list.map((listItem, listIndex) => {
+                                                return <div key={listIndex} className="footer-tcell">
+                                                    <p className="column1">{listItem.criterion}</p>
+                                                    <p className="column2">{listItem.result}</p>
+                                                    <p className="column3">{listItem.penalty}</p>
+                                                </div>
+                                            })}
+                                        </div>
+                                    </div>
+                                    : <span>{item.msg}</span>}
                             </div>
                         })}
                     </div> : cont && <div>{cont.map((item, index) => {

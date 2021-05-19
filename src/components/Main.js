@@ -9,7 +9,6 @@ import {GeoJsonLayer} from "@deck.gl/layers";
 import {COORDINATE_SYSTEM} from "@deck.gl/core";
 import {
     LogViewer,
-    XVIZPanel,
     XVIZLiveLoader,
     VIEW_MODE,
 } from "streetscape.gl";
@@ -29,13 +28,6 @@ let mapLayer;
 let index = 0;
 
 const outputLog = [];
-
-const myComponentProps = {
-    video: {
-        height: 800,
-        width: 1200,
-    }
-};
 
 const Main = () => {
     const {operateStatus, userInfo, code, myServer, loading, dispatch} = useContext(IndexContext);
@@ -222,6 +214,7 @@ const Main = () => {
                 dispatch({type: 'SET_OPERATE_STATUS', status: true});
                 setCurrentStatus({status: 'isRunning', ws_ip: ip});
             } else if (state === 'notRunning') {
+                dispatch({type: 'SET_LOADING', loading: false});
                 dispatch({type: 'SET_OPERATE_STATUS', status: false});
                 setCurrentStatus({status: 'notRunning', ws_ip: ip});
                 if (cmd === 'ASSERT') dispatch({type: 'SET_ASSERTION', cont: msg});
@@ -447,9 +440,9 @@ const Main = () => {
                             <div className="main-item">
                                 <div className="item-inner item-view3">
                                     {(log)
-                                        ? <XVIZPanel log={log} name="Camera" className="camera-wrapper"
-                                                     componentProps={myComponentProps}
-                                        />
+                                        ? <img src={`http://${WS_IP}:8096/front`}
+                                               alt=""
+                                               className="camera-wrapper"/>
                                         : <i className="iconfont iconpic"/>
                                     }
                                 </div>
@@ -459,9 +452,9 @@ const Main = () => {
                             <div className="main-item">
                                 <div className="item-inner item-view4" ref={overallView} onMouseDown={handleMousedown}>
                                     {(log)
-                                        ? <XVIZPanel log={log} name="Camera"
-                                                     className="camera-wrapper"
-                                                     componentProps={myComponentProps}/>
+                                        ? <img src={`http://${WS_IP}:8096/global`}
+                                               alt=""
+                                               className="camera-wrapper"/>
                                         : <i className="iconfont iconpic"/>
                                     }
                                 </div>

@@ -13,8 +13,8 @@ const AppRouter = () => {
             <Router>
                 <Menu/>
                 <Header/>
-                <Route path="/" exact component={Index}/>
-                <Route path="/knowledge" exact component={Knowledge}/>
+                <Route path="/console/" exact component={Index}/>
+                <Route path="/console/knowledge" exact component={Knowledge}/>
             </Router>
         </IndexContext.Provider>
     )

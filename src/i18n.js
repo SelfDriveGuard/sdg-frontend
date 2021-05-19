@@ -49,6 +49,8 @@ const i18n = {
         type: 'Type',
         timeStamp: 'Timestamp',
         desc: 'Description',
+        score: 'score',
+        testResult: 'Test results based on criteria',
 
         // MyServer
         projectConfig: 'Product configuration',
@@ -131,6 +133,8 @@ const i18n = {
         type: '类型',
         timeStamp: '时间戳',
         desc: '描述',
+        score: '总分',
+        testResult: '基于评价标准的测试结果',
 
         // MyServer
         projectConfig: '产品配置',
